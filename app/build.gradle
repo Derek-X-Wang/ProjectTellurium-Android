@@ -60,6 +60,7 @@ dependencies {
     // SQL orm
     compile 'com.github.satyan:sugar:1.5'
 
+
     // Logging
     compile 'com.orhanobut:logger:1.15'
 

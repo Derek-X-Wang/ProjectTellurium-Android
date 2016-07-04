@@ -42,9 +42,13 @@ public class SplashActivity extends AutoLayoutActivity {
             Log.d(LOG_TAG, "Network Disconnected");
             finish();
         }
-
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacksAndMessages(null);
+    }
 
     private boolean isNetworkConnected() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);

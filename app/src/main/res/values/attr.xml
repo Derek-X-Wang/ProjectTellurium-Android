@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="IconWithTextView">
+        <attr name = "pgicon"/>
+        <attr name = "pgcolor"/>
+        <attr name = "text"/>
+        <attr name = "text_size"/>
+    </declare-styleable>
+
+</resources>
