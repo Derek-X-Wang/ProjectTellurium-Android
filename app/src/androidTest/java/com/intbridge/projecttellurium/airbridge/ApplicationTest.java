@@ -1,4 +1,4 @@
-package com.intbridge.projecttellurium.projecttellurium_android;
+package com.intbridge.projecttellurium.airbridge;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
