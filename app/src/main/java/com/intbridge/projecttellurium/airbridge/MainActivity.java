@@ -3,19 +3,43 @@ package com.intbridge.projecttellurium.airbridge;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+
+import com.intbridge.projecttellurium.airbridge.controllers.CardFragment;
+import com.intbridge.projecttellurium.airbridge.controllers.ContactFragment;
+import com.intbridge.projecttellurium.airbridge.controllers.DiscoveryFragment;
+import com.intbridge.projecttellurium.airbridge.controllers.SettingFragment;
+import com.intbridge.projecttellurium.airbridge.views.IconWithTextView;
+import com.zhy.autolayout.AutoLayoutActivity;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends AutoLayoutActivity implements View.OnClickListener {
+
+    private ContactFragment contactFragment;
+    private CardFragment cardFragment;
+    private DiscoveryFragment discoveryFragment;
+    private SettingFragment settingFragment;
+
+    private int currentTab = 0;
+    IconWithTextView tabContacts;
+    IconWithTextView tabCards;
+    IconWithTextView tabDiscovery;
+    IconWithTextView tabSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActionBar actionBar = getActionBar();
-        Log.e("test","main");
         setContentView(R.layout.activity_main);
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+        Log.e("test","main");
+
+
+        initView();
     }
 
 
@@ -33,11 +57,96 @@ public class MainActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void initView(){
+
+        tabContacts = (IconWithTextView)findViewById(R.id.tab_contacts);
+        tabCards = (IconWithTextView)findViewById(R.id.tab_cards);
+        tabDiscovery = (IconWithTextView)findViewById(R.id.tab_discovery);
+        tabSettings = (IconWithTextView)findViewById(R.id.tab_settings);
+
+        tabContacts.setOnClickListener(this);
+        tabCards.setOnClickListener(this);
+        tabDiscovery.setOnClickListener(this);
+        tabSettings.setOnClickListener(this);
+
+        resetOtherTabs();
+        //initFragments();
+        switch (currentTab) {
+            case 0:
+                tabContacts.setIconAlpha(1.0f);
+//                getFragmentManager().beginTransaction()
+//                        .show(contactFragment)
+//                        .commit();
+                break;
+            case 1:
+                tabCards.setIconAlpha(1.0f);
+//                getFragmentManager().beginTransaction()
+//                        .show(cardFragment)
+//                        .commit();
+                break;
+            case 2:
+                tabDiscovery.setIconAlpha(1.0f);
+//                getFragmentManager().beginTransaction()
+//                        .show(discoveryFragment)
+//                        .commit();
+                break;
+            case 3:
+                tabSettings.setIconAlpha(1.0f);
+//                getFragmentManager().beginTransaction()
+//                        .show(settingFragment)
+//                        .commit();
+                break;
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        resetOtherTabs();
+        //ActionBar actionBar = getActionBar();
+        switch (v.getId()){
+            case R.id.tab_contacts:
+                currentTab = 0;
+                tabContacts.setIconAlpha(1.0f);
+                //hideAllFragments();
+//                getFragmentManager().beginTransaction()
+//                        .show(contactFragment)
+//                        .commit();
+                break;
+            case R.id.tab_cards:
+                currentTab = 1;
+                tabCards.setIconAlpha(1.0f);
+                //hideAllFragments();
+//                getFragmentManager().beginTransaction()
+//                        .show(cardFragment)
+//                        .commit();
+                break;
+            case R.id.tab_discovery:
+                currentTab = 2;
+                tabDiscovery.setIconAlpha(1.0f);
+                //hideAllFragments();
+//                getFragmentManager().beginTransaction()
+//                        .show(discoveryFragment)
+//                        .commit();
+                break;
+            case R.id.tab_settings:
+                currentTab = 3;
+                tabSettings.setIconAlpha(1.0f);
+                //hideAllFragments();
+//                getFragmentManager().beginTransaction()
+//                        .show(settingFragment)
+//                        .commit();
+                break;
+        }
+    }
+
+    private void resetOtherTabs(){
+        tabContacts.setIconAlpha(0);
+        tabCards.setIconAlpha(0);
+        tabDiscovery.setIconAlpha(0);
+        tabSettings.setIconAlpha(0);
     }
 }

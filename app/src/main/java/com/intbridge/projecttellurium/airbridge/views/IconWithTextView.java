@@ -65,7 +65,7 @@ public class IconWithTextView extends View {
                     iconBitmap = drawable.getBitmap();
                     break;
                 case R.styleable.IconWithTextView_pgcolor:
-                    color = a.getColor(attr, 0xFF45C01A);
+                    color = a.getColor(attr, color);
                     break;
                 case R.styleable.IconWithTextView_text:
                     text = a.getString(attr);
@@ -84,7 +84,7 @@ public class IconWithTextView extends View {
         mTextBound = new Rect();
         mTextPaint = new Paint();
         mTextPaint.setTextSize(textSize);
-        mTextPaint.setColor(0Xff555555);
+        mTextPaint.setColor(0xff919192);
         mTextPaint.getTextBounds(text, 0, text.length(), mTextBound);
     }
 
@@ -156,7 +156,7 @@ public class IconWithTextView extends View {
      */
     private void drawSourceText(Canvas canvas, int alpha)
     {
-        mTextPaint.setColor(0xff333333);
+        mTextPaint.setColor(0xff919192);
         mTextPaint.setAlpha(255 - alpha);
         int x = getMeasuredWidth() / 2 - mTextBound.width() / 2;
         int y = mIconRect.bottom + mTextBound.height();

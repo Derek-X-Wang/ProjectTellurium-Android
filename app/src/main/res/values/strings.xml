@@ -7,6 +7,11 @@
     <string name="search">Search</string>
     <string name="push_title">airbridge push</string>
 
+    <string name="tab_contacts">Contacts</string>
+    <string name="tab_cards">MyCards</string>
+    <string name="tab_discovery">Discovery</string>
+    <string name="tab_settings">Settings</string>
+
     <!-- Suffix after '-' must be the app package name as specified in the build.gradle file. This
       is used by the com.amazonaws.mobile.downloader.query.DownloadQueueProvider class. -->
     <string name="download_queue_provider_authority">com.amazonaws.mobile.downloader-com.intbridge.projecttellurium.airbridge</string>
@@ -25,4 +30,7 @@
     <string name="content_helper_error_no_app">No Viewing App exists for content type \'%s\'.</string>
     <string name="splash_icon" />
     <string name="splash_version">AirBridge Version 0.0.1</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
