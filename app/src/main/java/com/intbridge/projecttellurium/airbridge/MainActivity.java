@@ -2,6 +2,8 @@ package com.intbridge.projecttellurium.airbridge;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Fragment;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -16,36 +18,47 @@ import com.intbridge.projecttellurium.airbridge.controllers.SettingFragment;
 import com.intbridge.projecttellurium.airbridge.views.IconWithTextView;
 import com.zhy.autolayout.AutoLayoutActivity;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class MainActivity extends AutoLayoutActivity implements View.OnClickListener {
+
+public class MainActivity extends AutoLayoutActivity {
 
     private ContactFragment contactFragment;
     private CardFragment cardFragment;
     private DiscoveryFragment discoveryFragment;
     private SettingFragment settingFragment;
 
-    private int currentTab = 0;
-    IconWithTextView tabContacts;
-    IconWithTextView tabCards;
-    IconWithTextView tabDiscovery;
-    IconWithTextView tabSettings;
+    private int currentTab = R.id.tab_cards;
+    @BindView(R.id.tab_contacts)
+    protected IconWithTextView tabContacts;
+    @BindView(R.id.tab_cards)
+    protected IconWithTextView tabCards;
+    @BindView(R.id.tab_discovery)
+    protected IconWithTextView tabDiscovery;
+    @BindView(R.id.tab_settings)
+    protected IconWithTextView tabSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        myToolbar.setTitleTextColor(Color.parseColor("#919192"));
         setSupportActionBar(myToolbar);
-        Log.e("test","main");
+        Log.e("test","main1");
 
 
         initView();
     }
 
+    public void setActionBarTitle(String title) {
+        getSupportActionBar().setTitle(title);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.action_bar, menu);
         return true;
     }
@@ -63,83 +76,66 @@ public class MainActivity extends AutoLayoutActivity implements View.OnClickList
 
     private void initView(){
 
-        tabContacts = (IconWithTextView)findViewById(R.id.tab_contacts);
-        tabCards = (IconWithTextView)findViewById(R.id.tab_cards);
-        tabDiscovery = (IconWithTextView)findViewById(R.id.tab_discovery);
-        tabSettings = (IconWithTextView)findViewById(R.id.tab_settings);
-
-        tabContacts.setOnClickListener(this);
-        tabCards.setOnClickListener(this);
-        tabDiscovery.setOnClickListener(this);
-        tabSettings.setOnClickListener(this);
+        ButterKnife.bind(this);
+        contactFragment = new ContactFragment();
+        cardFragment = new CardFragment();
+        discoveryFragment = new DiscoveryFragment();
+        settingFragment = new SettingFragment();
 
         resetOtherTabs();
-        //initFragments();
-        switch (currentTab) {
-            case 0:
-                tabContacts.setIconAlpha(1.0f);
-//                getFragmentManager().beginTransaction()
-//                        .show(contactFragment)
-//                        .commit();
-                break;
-            case 1:
-                tabCards.setIconAlpha(1.0f);
-//                getFragmentManager().beginTransaction()
-//                        .show(cardFragment)
-//                        .commit();
-                break;
-            case 2:
-                tabDiscovery.setIconAlpha(1.0f);
-//                getFragmentManager().beginTransaction()
-//                        .show(discoveryFragment)
-//                        .commit();
-                break;
-            case 3:
-                tabSettings.setIconAlpha(1.0f);
-//                getFragmentManager().beginTransaction()
-//                        .show(settingFragment)
-//                        .commit();
-                break;
-        }
+        getFragmentManager().beginTransaction()
+                .add(R.id.fragment_content, getFragment(R.id.tab_cards))
+                .commit();
+        setIconTextAlpha(currentTab);
     }
 
-    @Override
-    public void onClick(View v) {
+    @OnClick({R.id.tab_contacts, R.id.tab_cards, R.id.tab_discovery, R.id.tab_settings})
+    public void onTabsClick(View v) {
         resetOtherTabs();
-        //ActionBar actionBar = getActionBar();
-        switch (v.getId()){
+        currentTab = v.getId();
+        setIconTextAlpha(currentTab);
+        replaceFragment(v.getId());
+    }
+
+    private void replaceFragment(int tab) {
+        getFragmentManager().beginTransaction()
+                .replace(R.id.fragment_content, getFragment(tab))
+                .commit();
+    }
+
+    private void setIconTextAlpha(int id) {
+        switch (id){
             case R.id.tab_contacts:
                 currentTab = 0;
                 tabContacts.setIconAlpha(1.0f);
-                //hideAllFragments();
-//                getFragmentManager().beginTransaction()
-//                        .show(contactFragment)
-//                        .commit();
                 break;
             case R.id.tab_cards:
                 currentTab = 1;
                 tabCards.setIconAlpha(1.0f);
-                //hideAllFragments();
-//                getFragmentManager().beginTransaction()
-//                        .show(cardFragment)
-//                        .commit();
                 break;
             case R.id.tab_discovery:
                 currentTab = 2;
                 tabDiscovery.setIconAlpha(1.0f);
-                //hideAllFragments();
-//                getFragmentManager().beginTransaction()
-//                        .show(discoveryFragment)
-//                        .commit();
                 break;
             case R.id.tab_settings:
                 currentTab = 3;
                 tabSettings.setIconAlpha(1.0f);
-                //hideAllFragments();
-//                getFragmentManager().beginTransaction()
-//                        .show(settingFragment)
-//                        .commit();
                 break;
+        }
+    }
+
+    private Fragment getFragment(int id) {
+        switch (id){
+            case R.id.tab_contacts:
+                return contactFragment;
+            case R.id.tab_cards:
+                return cardFragment;
+            case R.id.tab_discovery:
+                return discoveryFragment;
+            case R.id.tab_settings:
+                return settingFragment;
+            default:
+                return contactFragment;
         }
     }
 
