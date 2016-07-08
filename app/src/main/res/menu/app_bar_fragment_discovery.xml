@@ -2,8 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_favorite"
+        android:id="@+id/action_inbox"
         android:icon="@drawable/ic_inbox_grey_500_36dp"
-        android:title="@string/app_bar_add"
+        android:title="@string/app_bar_inbox"
         app:showAsAction="ifRoom"/>
 </menu>

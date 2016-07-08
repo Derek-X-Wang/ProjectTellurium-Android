@@ -9,7 +9,7 @@
 
     <string name="tab_contacts">Contacts</string>
     <string name="tab_cards">MyCards</string>
-    <string name="tab_discovery">Discovery</string>
+    <string name="tab_discovery">Discover</string>
     <string name="tab_settings">Settings</string>
 
     <!-- Suffix after '-' must be the app package name as specified in the build.gradle file. This
@@ -34,4 +34,5 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="app_bar_add">Add</string>
+    <string name="app_bar_inbox">inbox</string>
 </resources>

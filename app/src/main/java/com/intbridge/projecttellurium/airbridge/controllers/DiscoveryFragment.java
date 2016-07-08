@@ -24,7 +24,7 @@ public class DiscoveryFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         host = (MainActivity)getActivity();
-        host.setActionBarTitle("Discovery");
+        host.setActionBarTitle("Discover");
     }
 
     @Override

@@ -16,6 +16,8 @@ import com.intbridge.projecttellurium.airbridge.controllers.ContactFragment;
 import com.intbridge.projecttellurium.airbridge.controllers.DiscoveryFragment;
 import com.intbridge.projecttellurium.airbridge.controllers.SettingFragment;
 import com.intbridge.projecttellurium.airbridge.views.IconWithTextView;
+import com.orhanobut.dialogplus.DialogPlus;
+import com.orhanobut.dialogplus.OnItemClickListener;
 import com.zhy.autolayout.AutoLayoutActivity;
 
 import butterknife.BindView;
@@ -70,6 +72,18 @@ public class MainActivity extends AutoLayoutActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+//        if(id == R.id.action_inbox) {
+//            DialogPlus dialog = DialogPlus.newDialog(this)
+//                    .setAdapter(adapter)
+//                    .setOnItemClickListener(new OnItemClickListener() {
+//                        @Override
+//                        public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
+//                        }
+//                    })
+//                    .setExpanded(true)  // This will enable the expand feature, (similar to android L share dialog)
+//                    .create();
+//            dialog.show();
+//        }
 
         return super.onOptionsItemSelected(item);
     }
