@@ -7,17 +7,23 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 
+import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.intbridge.projecttellurium.airbridge.controllers.CardFragment;
 import com.intbridge.projecttellurium.airbridge.controllers.ContactFragment;
 import com.intbridge.projecttellurium.airbridge.controllers.DiscoveryFragment;
 import com.intbridge.projecttellurium.airbridge.controllers.SettingFragment;
+import com.intbridge.projecttellurium.airbridge.utils.SendCardAdapter;
 import com.intbridge.projecttellurium.airbridge.views.IconWithTextView;
 import com.orhanobut.dialogplus.DialogPlus;
 import com.orhanobut.dialogplus.OnItemClickListener;
+import com.orhanobut.logger.Logger;
 import com.zhy.autolayout.AutoLayoutActivity;
 
 import butterknife.BindView;
@@ -42,6 +48,9 @@ public class MainActivity extends AutoLayoutActivity {
     @BindView(R.id.tab_settings)
     protected IconWithTextView tabSettings;
 
+    private LayoutInflater inflater;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +59,7 @@ public class MainActivity extends AutoLayoutActivity {
         myToolbar.setTitleTextColor(Color.parseColor("#919192"));
         setSupportActionBar(myToolbar);
         Log.e("test","main1");
+        inflater = LayoutInflater.from(this);
 
 
         initView();
@@ -72,18 +82,34 @@ public class MainActivity extends AutoLayoutActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-//        if(id == R.id.action_inbox) {
-//            DialogPlus dialog = DialogPlus.newDialog(this)
-//                    .setAdapter(adapter)
-//                    .setOnItemClickListener(new OnItemClickListener() {
-//                        @Override
-//                        public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
-//                        }
-//                    })
-//                    .setExpanded(true)  // This will enable the expand feature, (similar to android L share dialog)
-//                    .create();
-//            dialog.show();
-//        }
+        if(id == R.id.action_inbox) {
+            View header = inflater.inflate(R.layout.layout_sendcard_header, null);
+            SendCardAdapter adapter = new SendCardAdapter(this);
+            DialogPlus dialog = DialogPlus.newDialog(this)
+                    .setAdapter(adapter)
+                    .setGravity(Gravity.BOTTOM)
+                    .setHeader(header)
+                    .setOnItemClickListener(new OnItemClickListener() {
+                        @Override
+                        public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
+                            Logger.d("this is",item);
+                        }
+                    })
+                    .setExpanded(true)  // This will enable the expand feature, (similar to android L share dialog)
+                    .setContentBackgroundResource(android.R.color.transparent)
+                    .create();
+            View holder = dialog.getHolderView();
+            // TODO: implement a new dialog for cleaner code, screen size independent and re-usability
+            // using a trick to get header transparent and content semi-transparent
+            holder.setBackgroundDrawable(getResources().getDrawable(R.drawable.dialog_content));
+            dialog.show();
+
+//            BottomSheetLayout bottomSheet = (BottomSheetLayout) findViewById(R.id.bottomsheet);
+//            View bs = LayoutInflater.from(this).inflate(R.layout.layout_sendcard,bottomSheet,false);
+//            ListView listView = (ListView) bs.findViewById(R.id.layout_sendcard_listview);
+//            listView.setAdapter(adapter);
+//            bottomSheet.showWithSheetView(bs);
+        }
 
         return super.onOptionsItemSelected(item);
     }

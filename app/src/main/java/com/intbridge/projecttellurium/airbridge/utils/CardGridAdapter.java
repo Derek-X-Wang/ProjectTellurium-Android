@@ -1,22 +1,13 @@
 package com.intbridge.projecttellurium.airbridge.utils;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
-import com.amazonaws.auth.policy.Resource;
 import com.intbridge.projecttellurium.airbridge.R;
-
-import java.util.List;
 
 
 /**
@@ -54,7 +45,7 @@ public class CardGridAdapter extends BaseAdapter {
         View row = convertView;
         ViewHolder holder;
         if (row == null) {
-            row = inflater.inflate(R.layout.gridview_item, parent, false);
+            row = inflater.inflate(R.layout.item_gridview, parent, false);
             holder = new ViewHolder(row);
             row.setTag(holder);
         } else {

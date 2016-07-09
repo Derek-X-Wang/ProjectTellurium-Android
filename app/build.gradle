@@ -83,4 +83,5 @@ dependencies {
     compile 'com.badoo.mobile:android-weak-handler:1.1'
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.orhanobut:dialogplus:1.11@aar'
+    compile 'com.flipboard:bottomsheet-core:1.5.1'
 }
