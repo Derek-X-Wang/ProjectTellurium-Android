@@ -48,14 +48,18 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
 
+        <activity
+            android:name=".controllers.LoginActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/title_activity_login"/>
         <meta-data
             android:name="design_width"
-            android:value="1080"></meta-data>
+            android:value="1080"/>
         <meta-data
             android:name="design_height"
-            android:value="1920"></meta-data>
+            android:value="1920"/>
 
         <!-- BEGIN - APP CONTENT DELIVERY AND USER DATA STORAGE -->
 
@@ -86,7 +90,7 @@
             android:name="com.amazonaws.mobile.downloader.query.DownloadQueueProvider"
             android:authorities="@string/download_queue_provider_authority"
             android:enabled="true"
-            android:exported="false"></provider>
+            android:exported="false"/>
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="@string/content_file_provider_authority"
@@ -122,9 +126,6 @@
         </service>
 
         <!-- END - PUSH NOTIFICATIONS WITH GOOGLE CLOUD MESSAGING (GCM) -->
-        <activity
-            android:name=".LoginActivity"
-            android:label="@string/title_activity_login"></activity>
     </application>
 
 </manifest>

@@ -3,4 +3,6 @@
     <color name="default_background">#1c1c1d</color>
     <color name="dialog_sendcard_content">#ec19191a</color>
     <color name="accentColor">#ffffff</color>
+    <color name="headerGray">#d869696b</color>
+
 </resources>

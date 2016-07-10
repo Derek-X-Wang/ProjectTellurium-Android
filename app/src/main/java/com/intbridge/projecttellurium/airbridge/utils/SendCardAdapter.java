@@ -42,7 +42,7 @@ public class SendCardAdapter extends BaseAdapter {
         View view = convertView;
 
         if (view == null) {
-            view = inflater.inflate(R.layout.item_listview_nearby, parent, false);
+            view = inflater.inflate(R.layout.item_listview_sendcard, parent, false);
 
             viewHolder = new ViewHolder();
             viewHolder.textView = (TextView) view.findViewById(R.id.list_item_textview);
