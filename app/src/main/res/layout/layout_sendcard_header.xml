@@ -24,8 +24,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_marginStart="136dp"
-            android:layout_marginLeft="136dp">
+            android:layout_marginStart="128dp"
+            android:layout_marginLeft="128dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -46,8 +46,8 @@
     <de.hdodenhof.circleimageview.CircleImageView
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_marginTop="18dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginStart="30dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginStart="24dp"
         android:id="@+id/profile_image"
         android:layout_width="96dp"
         android:layout_height="96dp"

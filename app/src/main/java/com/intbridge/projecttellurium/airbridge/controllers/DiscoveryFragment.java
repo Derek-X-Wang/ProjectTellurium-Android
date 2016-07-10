@@ -7,9 +7,14 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.intbridge.projecttellurium.airbridge.MainActivity;
 import com.intbridge.projecttellurium.airbridge.R;
+import com.intbridge.projecttellurium.airbridge.utils.NearbyAdapter;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Discovery Fragment
@@ -17,6 +22,9 @@ import com.intbridge.projecttellurium.airbridge.R;
  */
 public class DiscoveryFragment extends Fragment {
     private MainActivity host;
+
+    @BindView(R.id.fragment_discovery_listview)
+    protected ListView listView;
 
     public DiscoveryFragment() {}
 
@@ -31,7 +39,11 @@ public class DiscoveryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        return inflater.inflate(R.layout.fragment_discovery, container, false);
+        View v = inflater.inflate(R.layout.fragment_discovery, container, false);
+        ButterKnife.bind(this,v);
+
+        listView.setAdapter(new NearbyAdapter(host));
+        return v;
     }
 
     @Override

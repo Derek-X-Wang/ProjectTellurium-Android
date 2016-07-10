@@ -5,4 +5,8 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="TextAppearence.App.TextInputLayout" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/accentColor</item>
+    </style>
+
 </resources>
