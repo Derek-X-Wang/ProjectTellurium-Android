@@ -94,6 +94,8 @@ public class LoginActivity extends AppCompatActivity {
     private AlertDialog userDialog;
     private ProgressDialog waitDialog;
 
+    private final String TAG = "LoginActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,6 +155,30 @@ public class LoginActivity extends AppCompatActivity {
         CognitoHelper.getPool().signUpInBackground(username, password, userAttributes, null, signUpHandler);
     }
 
+    private void confirmSignUp(CognitoUserCodeDeliveryDetails cognitoUserCodeDeliveryDetails) {
+        Intent intent = new Intent(this, ConfirmActivity.class);
+        intent.putExtra("source","signup");
+        intent.putExtra("name", username);
+        intent.putExtra("destination", cognitoUserCodeDeliveryDetails.getDestination());
+        intent.putExtra("deliveryMed", cognitoUserCodeDeliveryDetails.getDeliveryMedium());
+        intent.putExtra("attribute", cognitoUserCodeDeliveryDetails.getAttributeName());
+        startActivityForResult(intent, 10);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 10) {
+            if(resultCode == RESULT_OK){
+                String name = null;
+                if(data.hasExtra("name")) {
+                    name = data.getStringExtra("name");
+                }
+                //exit(name);
+                Log.e(TAG, "onActivityResult: 10");
+            }
+        }
+    }
+
     private void signInUser() {
         username = usernameSignInView.getText().toString();
         if(email == null || email.length() < 1) {
@@ -173,7 +199,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         showWaitDialog("Signing in...");
-        CognitoHelper.getPool().getUser(email).getSessionInBackground(authenticationHandler);
+        CognitoHelper.getPool().getUser(username).getSessionInBackground(authenticationHandler);
     }
 
     private void launchMain() {
@@ -314,12 +340,10 @@ public class LoginActivity extends AppCompatActivity {
 //    }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
         return email.contains("@");
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
         return password.length() > 4;
     }
 
@@ -363,18 +387,19 @@ public class LoginActivity extends AppCompatActivity {
             Boolean regState = signUpConfirmationState;
             if (signUpConfirmationState) {
                 // User is already confirmed
-                showDialogMessage("Sign up successful!", "Confirmed");
+                //showDialogMessage("Sign up successful!", "Confirmed");
             }
             else {
                 // User is not confirmed
-                showDialogMessage("Sign up successful!", "not Confirmed");
+                //showDialogMessage("Sign up successful!", "not Confirmed");
+                confirmSignUp(cognitoUserCodeDeliveryDetails);
             }
         }
 
         @Override
         public void onFailure(Exception e) {
-            showDialogMessage("Sign up failed!", "not Confirmed");
-            Logger.e(e.getMessage());
+            showDialogMessage("Sign up failed!", "Please try again");
+
         }
     };
 

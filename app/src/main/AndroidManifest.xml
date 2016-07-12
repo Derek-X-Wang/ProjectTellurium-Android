@@ -54,6 +54,9 @@
             android:name=".auth.LoginActivity"
             android:screenOrientation="portrait"
             android:label="@string/title_activity_login"/>
+        <activity
+            android:name=".auth.ConfirmActivity"
+            android:screenOrientation="portrait"/>
         <meta-data
             android:name="design_width"
             android:value="1080"/>

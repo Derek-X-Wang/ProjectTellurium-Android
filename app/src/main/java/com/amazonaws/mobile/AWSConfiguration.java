@@ -29,7 +29,7 @@ public class AWSConfiguration {
     public static final String  AMAZON_COGNITO_USER_POOL_CLIENT_ID =
             "5m1k4sqlgmnoc1arpl7r69vemh";
     public static final String  AMAZON_COGNITO_USER_POOL_CLIENT_SECRET =
-            "1u6cajq2af5baumshcmcnsrlqaofbbos80rmb2sb1vpns10o2a1i";
+            "1h22nqs2gfjcll91362rbemoc2svgj0edm8lrnjonh0tba8l6nno";
     // AMAZON MOBILE ANALYTICS
     public static final String  AMAZON_MOBILE_ANALYTICS_APP_ID =
         "f73fe10c00264069ad2802d5ecacc490";
