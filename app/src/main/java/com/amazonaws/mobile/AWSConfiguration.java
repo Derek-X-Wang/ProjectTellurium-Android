@@ -25,9 +25,9 @@ public class AWSConfiguration {
     public static final String  AMAZON_COGNITO_IDENTITY_POOL_ID =
         "us-east-1:c3719a72-d633-4f52-b6fc-ba9e8f595fc8";
     public static final String  AMAZON_COGNITO_USER_POOL_ID =
-            "us-east-1_Czaq5p6hZ";
+            "us-east-1_FSuQQjAFU";
     public static final String  AMAZON_COGNITO_USER_POOL_CLIENT_ID =
-            "7bl0qi82arcu87eetrpis9m53l";
+            "5m1k4sqlgmnoc1arpl7r69vemh";
     public static final String  AMAZON_COGNITO_USER_POOL_CLIENT_SECRET =
             "1u6cajq2af5baumshcmcnsrlqaofbbos80rmb2sb1vpns10o2a1i";
     // AMAZON MOBILE ANALYTICS

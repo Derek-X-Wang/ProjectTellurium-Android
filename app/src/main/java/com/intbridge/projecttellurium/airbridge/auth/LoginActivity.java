@@ -12,6 +12,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -40,39 +41,50 @@ import butterknife.ButterKnife;
 public class LoginActivity extends AppCompatActivity {
 
     // UI references.
-    @BindView(R.id.username)
-    protected EditText mUsernameView;
-    @BindView(R.id.email)
-    protected EditText mEmailView;
-    @BindView(R.id.password)
-    protected EditText mPasswordView;
+    // sign in
+    @BindView(R.id.signin_form)
+    protected LinearLayout signInForm;
 
-    @BindView(R.id.username_layout)
-    protected LinearLayout mUsernameLayout;
-    @BindView(R.id.email_layout)
-    protected TextInputLayout mEmailLayout;
-    @BindView(R.id.password_layout)
-    protected TextInputLayout mPasswordLayout;
+    @BindView(R.id.username_signin)
+    protected EditText usernameSignInView;
+    @BindView(R.id.password_signin)
+    protected EditText passwordSignInView;
 
+    @BindView(R.id.username_signin_textinputlayout)
+    protected TextInputLayout usernameSignInLayout;
+    @BindView(R.id.password_signin_textinputlayout)
+    protected TextInputLayout passwordSignInLayout;
 
-    @BindView(R.id.login_progress)
-    protected View mProgressView;
-    @BindView(R.id.login_form)
-    protected View mLoginFormView;
-    @BindView(R.id.email_sign_in_button)
-    protected Button mEmailSignInButton;
-    @BindView(R.id.email_sign_up_button)
-    protected Button mEmailSignUpButton;
-
-    @BindView(R.id.toggle_signin)
-    protected TextView toSignIn;
-    @BindView(R.id.toggle_signup)
+    @BindView(R.id.sign_in_button)
+    protected Button signInButton;
+    @BindView(R.id.toggle_to_signup)
     protected TextView toSignUp;
 
-    @BindView(R.id.sign_up_layout)
-    protected LinearLayout toggleSignInLayout;
-    @BindView(R.id.sign_in_layout)
-    protected LinearLayout toggleSignUpLayout;
+    // sign up
+    @BindView(R.id.signup_form)
+    protected LinearLayout signUpForm;
+
+    @BindView(R.id.username_signup)
+    protected EditText usernameSignUpView;
+    @BindView(R.id.email_signup)
+    protected EditText emailSignUpView;
+    @BindView(R.id.password_signup)
+    protected EditText passwordSignUpView;
+
+    @BindView(R.id.username_signup_textinputlayout)
+    protected TextInputLayout usernameSignUpLayout;
+    @BindView(R.id.email_signup_textinputlayout)
+    protected TextInputLayout emailSignUpLayout;
+    @BindView(R.id.password_signup_textinputlayout)
+    protected TextInputLayout passwordSignUpLayout;
+
+    @BindView(R.id.sign_up_button)
+    protected Button signUpButton;
+    @BindView(R.id.toggle_to_signin)
+    protected TextView toSignIn;
+
+
+
 
     // User Details
     private String username;
@@ -98,39 +110,33 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
+        signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //attemptLogin();
                 signInUser();
             }
         });
-        mEmailSignUpButton.setOnClickListener(new View.OnClickListener() {
+        signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 signUpNewUser();
             }
         });
-        mEmailLayout.setErrorEnabled(true);
-        mPasswordLayout.setErrorEnabled(true);
+//        emailLayout.setErrorEnabled(true);
+//        mPasswordLayout.setErrorEnabled(true);
         toSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                toggleSignInLayout.setVisibility(View.GONE);
-                mEmailSignInButton.setVisibility(View.GONE);
-                mEmailSignUpButton.setVisibility(View.VISIBLE);
-                toggleSignUpLayout.setVisibility(View.VISIBLE);
-                mUsernameLayout.setVisibility(View.VISIBLE);
+                signInForm.setVisibility(View.GONE);
+                signUpForm.setVisibility(View.VISIBLE);
             }
         });
         toSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mEmailSignUpButton.setVisibility(View.GONE);
-                toggleSignUpLayout.setVisibility(View.GONE);
-                mUsernameLayout.setVisibility(View.GONE);
-                toggleSignInLayout.setVisibility(View.VISIBLE);
-                mEmailSignInButton.setVisibility(View.VISIBLE);
+                signUpForm.setVisibility(View.GONE);
+                signInForm.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -138,9 +144,9 @@ public class LoginActivity extends AppCompatActivity {
     private void signUpNewUser() {
 //        Intent registerActivity = new Intent(this, RegisterUser.class);
 //        startActivityForResult(registerActivity, 1);
-        username = mUsernameView.getText().toString();
-        email = mEmailView.getText().toString();
-        password = mPasswordView.getText().toString();
+        username = usernameSignUpView.getText().toString();
+        email = emailSignUpView.getText().toString();
+        password = passwordSignUpView.getText().toString();
         showWaitDialog("Signing up...");
         CognitoUserAttributes userAttributes = new CognitoUserAttributes();
         userAttributes.addAttribute("email", email);
@@ -148,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void signInUser() {
-        email = mEmailView.getText().toString();
+        username = usernameSignInView.getText().toString();
         if(email == null || email.length() < 1) {
 //            TextView label = (TextView) findViewById(R.id.textViewUserIdMessage);
 //            label.setText(mEmailView.getHint()+" cannot be empty");
@@ -158,7 +164,7 @@ public class LoginActivity extends AppCompatActivity {
 
         CognitoHelper.setUser(username);
 
-        password = mPasswordView.getText().toString();
+        password = passwordSignInView.getText().toString();
         if(password == null || password.length() < 1) {
 //            TextView label = (TextView) findViewById(R.id.textViewUserPasswordMessage);
 //            label.setText(mPasswordView.getHint()+" cannot be empty");
@@ -170,9 +176,12 @@ public class LoginActivity extends AppCompatActivity {
         CognitoHelper.getPool().getUser(email).getSessionInBackground(authenticationHandler);
     }
 
-    private void launchUser() {
+    private void launchMain() {
+        Log.e("Launch", "launchUser: "+CognitoHelper.getPool().getCurrentUser().getUserId());
         Intent userActivity = new Intent(this, MainActivity.class);
-        userActivity.putExtra("name", username);
+        userActivity.putExtra("name",
+                CognitoHelper.getPool().getCurrentUser().getUserId());
+
         //startActivityForResult(userActivity, 4);
         startActivity(userActivity);
         finish();
@@ -183,7 +192,7 @@ public class LoginActivity extends AppCompatActivity {
         username = user.getUserId();
         if(username != null) {
             CognitoHelper.setUser(username);
-            mEmailView.setText(user.getUserId());
+            usernameSignInView.setText(user.getUserId());
             user.getSessionInBackground(authenticationHandler);
         }
     }
@@ -193,34 +202,35 @@ public class LoginActivity extends AppCompatActivity {
             this.username = username;
             CognitoHelper.setUser(username);
         }
-        if(this.password == null) {
-            mEmailView.setText(username);
-            password = mPasswordView.getText().toString();
-            if(password == null) {
-//                TextView label = (TextView) findViewById(R.id.textViewUserPasswordMessage);
-//                label.setText(mPasswordView.getHint()+" enter password");
-//                mPasswordView.setBackground(getDrawable(R.drawable.text_border_error));
-                return;
-            }
-
-            if(password.length() < 1) {
-//                TextView label = (TextView) findViewById(R.id.textViewUserPasswordMessage);
-//                label.setText(mPasswordView.getHint()+" enter password");
-//                mPasswordView.setBackground(getDrawable(R.drawable.text_border_error));
-                return;
-            }
-        }
+//        if(this.password == null) {
+//            mEmailView.setText(username);
+//            password = mPasswordView.getText().toString();
+//            if(password == null) {
+////                TextView label = (TextView) findViewById(R.id.textViewUserPasswordMessage);
+////                label.setText(mPasswordView.getHint()+" enter password");
+////                mPasswordView.setBackground(getDrawable(R.drawable.text_border_error));
+//                return;
+//            }
+//
+//            if(password.length() < 1) {
+////                TextView label = (TextView) findViewById(R.id.textViewUserPasswordMessage);
+////                label.setText(mPasswordView.getHint()+" enter password");
+////                mPasswordView.setBackground(getDrawable(R.drawable.text_border_error));
+//                return;
+//            }
+//        }
         AuthenticationDetails authenticationDetails = new AuthenticationDetails(this.username, password, null);
         continuation.setAuthenticationDetails(authenticationDetails);
         continuation.continueTask();
     }
 
     private void clearInput() {
-        mEmailView.setText("");
-        mEmailView.requestFocus();
-//        mEmailView.setBackground(getDrawable(R.drawable.text_border_selector));
-        mPasswordView.setText("");
-//        mPasswordView.setBackground(getDrawable(R.drawable.text_border_selector));
+        usernameSignInView.setText("");
+        usernameSignUpView.setText("");
+        passwordSignInView.setText("");
+        passwordSignUpView.setText("");
+        emailSignUpView.setText("");
+        //mEmailView.requestFocus();
     }
 
     private void showWaitDialog(String message) {
@@ -259,49 +269,49 @@ public class LoginActivity extends AppCompatActivity {
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
-    private void attemptLogin() {
-
-        // Reset errors.
-        mEmailView.setError(null);
-        mPasswordView.setError(null);
-
-        // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
-
-        boolean cancel = false;
-        View focusView = null;
-
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
-//            mAuthTask = new UserLoginTask(email, password);
-//            mAuthTask.execute((Void) null);
-        }
-    }
+//    private void attemptLogin() {
+//
+//        // Reset errors.
+//        mEmailView.setError(null);
+//        mPasswordView.setError(null);
+//
+//        // Store values at the time of the login attempt.
+//        String email = mEmailView.getText().toString();
+//        String password = mPasswordView.getText().toString();
+//
+//        boolean cancel = false;
+//        View focusView = null;
+//
+//        // Check for a valid password, if the user entered one.
+//        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+//            mPasswordView.setError(getString(R.string.error_invalid_password));
+//            focusView = mPasswordView;
+//            cancel = true;
+//        }
+//
+//        // Check for a valid email address.
+//        if (TextUtils.isEmpty(email)) {
+//            mEmailView.setError(getString(R.string.error_field_required));
+//            focusView = mEmailView;
+//            cancel = true;
+//        } else if (!isEmailValid(email)) {
+//            mEmailView.setError(getString(R.string.error_invalid_email));
+//            focusView = mEmailView;
+//            cancel = true;
+//        }
+//
+//        if (cancel) {
+//            // There was an error; don't attempt login and focus the first
+//            // form field with an error.
+//            focusView.requestFocus();
+//        } else {
+//            // Show a progress spinner, and kick off a background task to
+//            // perform the user login attempt.
+//            //showProgress(true);
+////            mAuthTask = new UserLoginTask(email, password);
+////            mAuthTask.execute((Void) null);
+//        }
+//    }
 
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
@@ -313,41 +323,6 @@ public class LoginActivity extends AppCompatActivity {
         return password.length() > 4;
     }
 
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
-    }
 
     AuthenticationHandler authenticationHandler = new AuthenticationHandler() {
         @Override
@@ -355,7 +330,7 @@ public class LoginActivity extends AppCompatActivity {
             Logger.d("auth on success");
             CognitoHelper.setCurrSession(cognitoUserSession);
             closeWaitDialog();
-            launchUser();
+            launchMain();
         }
 
         @Override
@@ -375,13 +350,6 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         public void onFailure(Exception e) {
             closeWaitDialog();
-//            TextView label = (TextView) findViewById(R.id.textViewUserIdMessage);
-//            label.setText("Sign-in failed");
-//            mPasswordView.setBackground(getDrawable(R.drawable.text_border_error));
-//
-//            label = (TextView) findViewById(R.id.textViewUserIdMessage);
-//            label.setText("Sign-in failed");
-//            mEmailView.setBackground(getDrawable(R.drawable.text_border_error));
 
             showDialogMessage("Sign-in failed", CognitoHelper.formatException(e));
         }
