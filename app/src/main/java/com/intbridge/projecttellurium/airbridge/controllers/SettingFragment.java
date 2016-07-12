@@ -9,10 +9,11 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.GridView;
 
 import com.intbridge.projecttellurium.airbridge.MainActivity;
 import com.intbridge.projecttellurium.airbridge.R;
+import com.intbridge.projecttellurium.airbridge.auth.AWSUserPoolHelper;
+import com.intbridge.projecttellurium.airbridge.auth.LoginActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

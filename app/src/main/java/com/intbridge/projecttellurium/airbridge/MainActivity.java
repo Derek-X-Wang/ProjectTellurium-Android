@@ -14,6 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
+import com.amazonaws.mobile.AWSMobileClient;
+import com.amazonaws.mobile.user.IdentityManager;
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.intbridge.projecttellurium.airbridge.controllers.CardFragment;
 import com.intbridge.projecttellurium.airbridge.controllers.ContactFragment;
