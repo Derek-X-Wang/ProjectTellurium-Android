@@ -9,4 +9,8 @@
         <item name="android:textColor">@color/accentColor</item>
     </style>
 
+    <style name="Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">20dp</item>
+    </style>
 </resources>

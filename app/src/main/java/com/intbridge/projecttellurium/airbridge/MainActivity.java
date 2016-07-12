@@ -3,7 +3,9 @@ package com.intbridge.projecttellurium.airbridge;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -20,6 +22,7 @@ import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.intbridge.projecttellurium.airbridge.controllers.CardFragment;
 import com.intbridge.projecttellurium.airbridge.controllers.ContactFragment;
 import com.intbridge.projecttellurium.airbridge.controllers.DiscoveryFragment;
+import com.intbridge.projecttellurium.airbridge.controllers.NewCardActivity;
 import com.intbridge.projecttellurium.airbridge.controllers.SettingFragment;
 import com.intbridge.projecttellurium.airbridge.utils.SendCardAdapter;
 import com.intbridge.projecttellurium.airbridge.views.IconWithTextView;
@@ -103,14 +106,12 @@ public class MainActivity extends AutoLayoutActivity {
             View holder = dialog.getHolderView();
             // TODO: implement a new dialog for cleaner code, screen size independent and re-usability
             // using a trick to get header transparent and content semi-transparent
-            holder.setBackgroundDrawable(getResources().getDrawable(R.drawable.dialog_content));
+            //holder.setBackgroundDrawable(getResources().getDrawable(R.drawable.dialog_content));
+            setBgDrawable(holder, R.drawable.dialog_content);
             dialog.show();
-
-//            BottomSheetLayout bottomSheet = (BottomSheetLayout) findViewById(R.id.bottomsheet);
-//            View bs = LayoutInflater.from(this).inflate(R.layout.layout_sendcard,bottomSheet,false);
-//            ListView listView = (ListView) bs.findViewById(R.id.layout_sendcard_listview);
-//            listView.setAdapter(adapter);
-//            bottomSheet.showWithSheetView(bs);
+        } else if(id == R.id.action_addnew) {
+            Intent i = new Intent(MainActivity.this, NewCardActivity.class);
+            startActivity(i);
         }
 
         return super.onOptionsItemSelected(item);
@@ -186,5 +187,13 @@ public class MainActivity extends AutoLayoutActivity {
         tabCards.setIconAlpha(0);
         tabDiscovery.setIconAlpha(0);
         tabSettings.setIconAlpha(0);
+    }
+
+    private void setBgDrawable(View v, int id){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            v.setBackground(getDrawable(id));
+        } else {
+            v.setBackgroundDrawable(getResources().getDrawable(id));
+        }
     }
 }

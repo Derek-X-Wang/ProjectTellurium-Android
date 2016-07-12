@@ -17,6 +17,7 @@
         android:horizontalSpacing="20dp"
         android:verticalSpacing="30dp"
         android:columnWidth="130dp"
-        android:stretchMode="spacingWidth"/>
+        android:stretchMode="spacingWidth"
+        android:paddingBottom="?attr/actionBarSize"/>
 
 </FrameLayout>

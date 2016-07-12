@@ -51,4 +51,8 @@
         completions."
     </string>
     <string name="prompt_username">Username</string>
+    <string name="prompt_cardname">Card Name</string>
+    <string name="prompt_firstname">First</string>
+    <string name="prompt_lastname">Last</string>
+    <string name="prompt_position">Position</string>
 </resources>
