@@ -55,4 +55,6 @@
     <string name="prompt_firstname">First</string>
     <string name="prompt_lastname">Last</string>
     <string name="prompt_position">Position</string>
+    <string name="prompt_address">Address</string>
+    <string name="prompt_website">Website</string>
 </resources>

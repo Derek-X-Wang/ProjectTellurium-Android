@@ -81,4 +81,5 @@ dependencies {
     compile 'com.orhanobut:dialogplus:1.11@aar'
     compile 'com.flipboard:bottomsheet-core:1.5.1'
     compile 'com.github.siyamed:android-shape-imageview:0.9.+@aar'
+    compile 'com.rengwuxian.materialedittext:library:2.1.4'
 }

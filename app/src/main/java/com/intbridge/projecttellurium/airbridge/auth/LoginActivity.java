@@ -181,7 +181,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void signInUser() {
         username = usernameSignInView.getText().toString();
-        if(email == null || email.length() < 1) {
+        if(username == null || username.length() < 1) {
 //            TextView label = (TextView) findViewById(R.id.textViewUserIdMessage);
 //            label.setText(mEmailView.getHint()+" cannot be empty");
 //            mEmailView.setBackground(getDrawable(R.drawable.text_border_error));

@@ -5,6 +5,8 @@
     <color name="accentColor">#ffffff</color>
     <color name="headerGray">#d869696b</color>
 
+    <color name="grey">#a3a3a3</color>
+    <color name="blue">#8cbdfe</color>
 
     <!--AWS-->
     <color name="toolbar_background">#404142</color>
