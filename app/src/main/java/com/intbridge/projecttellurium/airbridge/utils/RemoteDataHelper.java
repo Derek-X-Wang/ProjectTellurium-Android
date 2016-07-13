@@ -140,6 +140,42 @@ public class RemoteDataHelper {
         BlurHelper.with(context).radius(25).Picasso(imageFile, imageBackground);
     }
 
+    public void setMyCardItemAutoOption(View v, String key) {
+        if(isImageCached(key)) {
+            setMyCardItemCache(v, key);
+        } else {
+            setMyCardItem(v, key);
+        }
+    }
+
+    public void setNewCardImageView(final ImageView v, String key) {
+        if(isImageCached(key)) {
+            TransferObserver observer = initTransferObserver(key);
+            observer.setTransferListener(new TransferListener(){
+
+                @Override
+                public void onStateChanged(int id, TransferState state) {
+                    if(state == TransferState.COMPLETED) {
+                        Picasso.with(context).load(imageFile).into(v);
+                    }
+                }
+
+                @Override
+                public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                }
+
+                @Override
+                public void onError(int id, Exception ex) {
+                    Log.e(TAG, "onError: download failed" );
+                }
+
+            });
+        } else {
+            imageFile = new File(Environment.getExternalStorageDirectory().toString() + "/" + key);
+            Picasso.with(context).load(imageFile).into(v);
+        }
+    }
+
     public PaginatedQueryList<Card> findMyCards(String userId) {
         AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
         DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
@@ -157,6 +193,16 @@ public class RemoteDataHelper {
 
     public void findMyCardsInBackground(String userId) {
         new FindMyCardsTask().execute(userId);
+    }
+
+    public Card getMyCard(String userId, String cardName) {
+        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
+        DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+         return mapper.load(Card.class, userId, cardName);
+    }
+
+    public void getMyCardInBackground(String imageRef) {
+        new GetCardTask().execute(imageRef);
     }
 
     private CognitoCachingCredentialsProvider getCredentialsProvider(){
@@ -177,6 +223,19 @@ public class RemoteDataHelper {
 
             Log.e(TAG, "onPostExecute: ddddd" );
 
+        }
+    }
+
+    private class GetCardTask extends AsyncTask<String, Void, Card> {
+
+        protected Card doInBackground(String... s) {
+            String[] sl = s[0].split("_");
+            return getMyCard(sl[0], sl[1]);
+        }
+
+        protected void onPostExecute(Card result) {
+            Log.e(TAG, "onPostExecute: ddddd" );
+            callback.done(result);
         }
     }
 
@@ -202,5 +261,16 @@ public class RemoteDataHelper {
             this.v = layout;
             this.key = id;
         }
+    }
+
+    private Callback callback = null;
+
+
+    public void setCallback(Callback c){
+        this.callback = c;
+    }
+
+    public interface Callback {
+        abstract void done(Card card);
     }
 }

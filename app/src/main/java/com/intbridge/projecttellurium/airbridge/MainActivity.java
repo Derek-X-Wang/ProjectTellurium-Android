@@ -58,7 +58,19 @@ public class MainActivity extends AutoLayoutActivity {
 
     private String userId;
     public static final String USER_ID = "USER_ID";
-    private static final int CODE_CREATE_NEW_CARD = 12;
+    public static final String CARD_NAME = "CARD_NAME";
+    public static final String FIRST_NAME = "FIRST_NAME";
+    public static final String LAST_NAME = "LAST_NAME";
+    public static final String PHONE = "PHONE";
+    public static final String POSITION = "POSITION";
+    public static final String EMAIL = "EMAIL";
+    public static final String ADDRESS = "ADDRESS";
+    public static final String WEBSITE = "WEBSITE";
+
+    public static final int CODE_CONFIRM_SIGNUP = 10;
+    public static final int CODE_SELECT_PICTURE = 11;
+    public static final int CODE_CREATE_NEW_CARD = 12;
+    public static final int CODE_EDIT_EXIST_CARD = 13;
 
 
     @Override
@@ -148,9 +160,16 @@ public class MainActivity extends AutoLayoutActivity {
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == CODE_CREATE_NEW_CARD) {
             if(resultCode == RESULT_OK){
-                cardFragment.notifyDataSetChanged();
+                String cardName = data.getExtras().getString(CARD_NAME);
+                cardFragment.notifyDataSetChanged(cardName);
+            }
+        } else if (requestCode == CODE_EDIT_EXIST_CARD) {
+            if(resultCode == RESULT_OK){
+                String cardName = data.getExtras().getString(CARD_NAME);
+                cardFragment.notifyDataSetChanged(cardName);
             }
         }
     }

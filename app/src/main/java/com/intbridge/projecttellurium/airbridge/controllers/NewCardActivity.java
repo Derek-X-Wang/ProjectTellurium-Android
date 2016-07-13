@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobile.AWSConfiguration;
@@ -30,11 +31,13 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.intbridge.projecttellurium.airbridge.MainActivity;
 import com.intbridge.projecttellurium.airbridge.R;
 import com.intbridge.projecttellurium.airbridge.auth.CognitoHelper;
 import com.intbridge.projecttellurium.airbridge.models.Card;
 import com.intbridge.projecttellurium.airbridge.utils.RemoteDataHelper;
 import com.rengwuxian.materialedittext.MaterialEditText;
+import com.squareup.haha.perflib.Main;
 import com.squareup.picasso.Picasso;
 import com.zhy.autolayout.AutoLayoutActivity;
 
@@ -76,7 +79,7 @@ public class NewCardActivity extends AutoLayoutActivity {
     private File imageFile;
 
     private static final String TAG = "NewCardActivity";
-    private static final int CODE_SELECT_PICTURE = 11;
+    private static final int CODE_SELECT_PICTURE = MainActivity.CODE_SELECT_PICTURE;
 
     private Card newCard;
 
@@ -90,6 +93,12 @@ public class NewCardActivity extends AutoLayoutActivity {
         setSupportActionBar(myToolbar);
         ButterKnife.bind(this);
 
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            editMode();
+        }
 
         initViews();
         CognitoHelper.init(getApplicationContext());
@@ -124,11 +133,59 @@ public class NewCardActivity extends AutoLayoutActivity {
 
             new SaveCardTask().execute();
 
-            setResult(RESULT_OK);
+            Intent intent = new Intent();
+            intent.putExtra(MainActivity.CARD_NAME,newCard.getCardname());
+            setResult(RESULT_OK, intent);
             finish();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void editMode() {
+        Bundle extras = getIntent().getExtras();
+        String imageRef = extras.getString(MainActivity.USER_ID)+"_"+extras.getString(MainActivity.CARD_NAME);
+        RemoteDataHelper helper = new RemoteDataHelper(this);
+        cardName.setEnabled(false);
+        profileImageView.setOnClickListener(null);
+        helper.setCallback(new RemoteDataHelper.Callback() {
+            @Override
+            public void done(Card card) {
+                cardName.setText(card.getCardname());
+                firstName.setText(card.getFirstName());
+                lastName.setText(card.getLastName());
+                phone.setText(card.getPhone());
+                position.setText(card.getPosition());
+                email.setText(card.getEmail());
+                address.setText(card.getAddress());
+                website.setText(card.getWebsite());
+            }
+        });
+        helper.getMyCardInBackground(imageRef);
+        helper.setNewCardImageView(profileImageView, imageRef);
+    }
+
+    private void viewMode() {
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            String imageRef = extras.getString(MainActivity.USER_ID)+"_"+extras.getString(MainActivity.CARD_NAME);
+            cardName.setText(extras.getString(MainActivity.CARD_NAME));
+            cardName.setEnabled(false);
+            firstName.setText(extras.getString(MainActivity.CARD_NAME));
+            firstName.setEnabled(false);
+            lastName.setText(extras.getString(MainActivity.CARD_NAME));
+            lastName.setEnabled(false);
+            phone.setText(extras.getString(MainActivity.CARD_NAME));
+            phone.setEnabled(false);
+            position.setText(extras.getString(MainActivity.CARD_NAME));
+            position.setEnabled(false);
+            email.setText(extras.getString(MainActivity.CARD_NAME));
+            email.setEnabled(false);
+            address.setText(extras.getString(MainActivity.CARD_NAME));
+            address.setEnabled(false);
+            website.setText(extras.getString(MainActivity.CARD_NAME));
+            website.setEnabled(false);
+        }
     }
 
     private class SaveCardTask extends AsyncTask<Void, Void, Void> {

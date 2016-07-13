@@ -33,9 +33,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class CardGridAdapter extends BaseAdapter {
 
     private Context host;
-    private String[] stringList = {"Test1","Test2","Test3", "Test4", "Test5"};
     private LayoutInflater inflater;
     private PaginatedQueryList<Card> cards;
+    private String dirtyCard;
     private static final String TAG = "CardGridAdapter";
 
     public CardGridAdapter(Context h) {
@@ -45,6 +45,14 @@ public class CardGridAdapter extends BaseAdapter {
 
     public PaginatedQueryList<Card> getCards() {
         return cards;
+    }
+
+    public void setDirtyCard(String dirtyCard) {
+        this.dirtyCard = dirtyCard;
+    }
+
+    public String getDirtyCard() {
+        return dirtyCard;
     }
 
     public void setCards(PaginatedQueryList<Card> cards) {
@@ -86,11 +94,12 @@ public class CardGridAdapter extends BaseAdapter {
             //Log.e(TAG, "getView: "+"recycle");
         }
         holder.cardName.setText(card.getCardname());
-        if(helper.isImageCached(card.getImageRef())) {
-            helper.setMyCardItemCache(row, card.getImageRef());
+        if(dirtyCard == null || !dirtyCard.equals(card.getCardname())) {
+            helper.setMyCardItemAutoOption(row, card.getImageRef());
         } else {
             helper.setMyCardItem(row, card.getImageRef());
         }
+
 
         return row;
     }

@@ -95,6 +95,7 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressDialog waitDialog;
 
     private final String TAG = "LoginActivity";
+    public static final int CODE_CONFIRM_SIGNUP = MainActivity.CODE_CONFIRM_SIGNUP;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,12 +158,12 @@ public class LoginActivity extends AppCompatActivity {
         intent.putExtra("destination", cognitoUserCodeDeliveryDetails.getDestination());
         intent.putExtra("deliveryMed", cognitoUserCodeDeliveryDetails.getDeliveryMedium());
         intent.putExtra("attribute", cognitoUserCodeDeliveryDetails.getAttributeName());
-        startActivityForResult(intent, 10);
+        startActivityForResult(intent, CODE_CONFIRM_SIGNUP);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 10) {
+        if (requestCode == CODE_CONFIRM_SIGNUP) {
             if(resultCode == RESULT_OK){
                 Log.e(TAG, "onActivityResult: 10");
             }
