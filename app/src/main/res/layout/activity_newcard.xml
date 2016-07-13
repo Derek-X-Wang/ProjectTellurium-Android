@@ -99,7 +99,21 @@
 
             </LinearLayout>
 
+            <View style="@style/Divider"/>
 
+            <com.rengwuxian.materialedittext.MaterialEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/phone_newcard"
+                android:hint="@string/prompt_phone"
+                android:maxLines="1"
+                android:singleLine="true"
+                app:met_baseColor="@color/white"
+                app:met_floatingLabel="highlight"
+                app:met_textColor="@color/white"
+                app:met_textColorHint="@color/grey"
+                app:met_underlineColor="@color/white"
+                app:met_floatingLabelTextColor="@color/grey"/>
 
             <View style="@style/Divider"/>
 

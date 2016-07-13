@@ -23,6 +23,7 @@ public class Card {
     private String address;
     private String position;
     private String website;
+    private String imageRef;
 
 
     @DynamoDBHashKey(attributeName = "UserId")
@@ -104,5 +105,14 @@ public class Card {
 
     public void setWebsite(String website) {
         this.website = website;
+    }
+
+    @DynamoDBAttribute(attributeName = "ImageRef")
+    public String getImageRef() {
+        return imageRef;
+    }
+
+    public void setImageRef(String imageRef) {
+        this.imageRef = imageRef;
     }
 }

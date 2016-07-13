@@ -57,4 +57,5 @@
     <string name="prompt_position">Position</string>
     <string name="prompt_address">Address</string>
     <string name="prompt_website">Website</string>
+    <string name="prompt_phone">Phone</string>
 </resources>

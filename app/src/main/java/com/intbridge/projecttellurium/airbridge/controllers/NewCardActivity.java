@@ -2,11 +2,14 @@ package com.intbridge.projecttellurium.airbridge.controllers;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -18,13 +21,24 @@ import com.amazonaws.mobile.AWSConfiguration;
 import com.amazonaws.mobile.AWSMobileClient;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBSaveExpression;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.intbridge.projecttellurium.airbridge.R;
 import com.intbridge.projecttellurium.airbridge.auth.CognitoHelper;
 import com.intbridge.projecttellurium.airbridge.models.Card;
+import com.intbridge.projecttellurium.airbridge.utils.RemoteDataHelper;
 import com.rengwuxian.materialedittext.MaterialEditText;
+import com.squareup.picasso.Picasso;
 import com.zhy.autolayout.AutoLayoutActivity;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
@@ -44,6 +58,8 @@ public class NewCardActivity extends AutoLayoutActivity {
     protected MaterialEditText firstName;
     @BindView(R.id.lastname_newcard)
     protected MaterialEditText lastName;
+    @BindView(R.id.phone_newcard)
+    protected MaterialEditText phone;
     @BindView(R.id.position_newcard)
     protected MaterialEditText position;
     @BindView(R.id.email_newcard)
@@ -56,9 +72,13 @@ public class NewCardActivity extends AutoLayoutActivity {
     protected CircleImageView profileImageView;
 
     private Drawable profileImage;
+    private Uri selectedImageUri;
+    private File imageFile;
 
     private static final String TAG = "NewCardActivity";
     private static final int CODE_SELECT_PICTURE = 11;
+
+    private Card newCard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +92,7 @@ public class NewCardActivity extends AutoLayoutActivity {
 
 
         initViews();
+        CognitoHelper.init(getApplicationContext());
 
     }
 
@@ -88,48 +109,49 @@ public class NewCardActivity extends AutoLayoutActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if(id == R.id.action_create) {
-//            CognitoCachingCredentialsProvider provider = AWSMobileClient
-//                    .defaultMobileClient()
-//                    .getIdentityManager()
-//                    .getCredentialsProvider();
-//            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(provider);
-//            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
-//            Card newCard = new Card();
-//            newCard.setUserId("t3");
-//            newCard.setCardname("Business");
-//            newCard.setFirstName("Xinzhe");
-//            newCard.setLastName("Wang");
-//            Log.e(TAG, "onOptionsItemSelected: " + "here2");
-//            mapper.save(newCard, new DynamoDBSaveExpression());
-//            Log.e(TAG, "onOptionsItemSelected: " + "here1");
-            new UserTask().execute();
+            Log.e(TAG, "onOptionsItemSelected: "+CognitoHelper.getCurrUser() );
+            newCard = new Card();
+            newCard.setUserId(CognitoHelper.getCurrUser());
+            newCard.setCardname(cardName.getText().toString());
+            newCard.setFirstName(firstName.getText().toString());
+            newCard.setLastName(lastName.getText().toString());
+            newCard.setPhone(phone.getText().toString());
+            newCard.setPosition(position.getText().toString());
+            newCard.setEmail(email.getText().toString());
+            newCard.setAddress(address.getText().toString());
+            newCard.setWebsite(website.getText().toString());
+            newCard.setImageRef(newCard.getUserId() + "_" + newCard.getCardname());
 
+            new SaveCardTask().execute();
 
-
+            finish();
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private class UserTask extends AsyncTask<Void, Void, Void> {
+    private class SaveCardTask extends AsyncTask<Void, Void, Void> {
 
-        protected Void doInBackground(Void... types) {
+        protected Void doInBackground(Void... card) {
 
-            CognitoCachingCredentialsProvider provider = AWSMobileClient
-                    .defaultMobileClient()
-                    .getIdentityManager()
-                    .getCredentialsProvider();
-            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(provider);
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
-            Card newCard = new Card();
-            newCard.setUserId("t3");
-            newCard.setCardname("Business");
-            newCard.setFirstName("Xinzhe");
-            newCard.setLastName("Wang");
             Log.e(TAG, "onOptionsItemSelected: " + "here2");
+            String key = newCard.getImageRef();
             mapper.save(newCard, new DynamoDBSaveExpression());
             Log.e(TAG, "onOptionsItemSelected: " + "here1");
-
+            if(selectedImageUri != null) {
+                AmazonS3 s3 = new AmazonS3Client(getCredentialsProvider());
+                TransferUtility transferUtility = new TransferUtility(s3, getApplicationContext());
+                TransferObserver observer = transferUtility.upload(
+                        AWSConfiguration.AMAZON_S3_USER_FILES_BUCKET,     /* The bucket to upload to */
+                        key,    /* The key for the uploaded object */
+                        new File(getPath(selectedImageUri))        /* The file where the data to upload exists */
+                );
+                Log.e(TAG, "doInBackground: wwww" );
+            }
+            //new RemoteDataHelper(getApplicationContext()).setImageView(profileImageView, "ddd_cardddd");
+            Log.e(TAG, "doInBackground: dddd" );
             return null;
         }
 
@@ -156,10 +178,12 @@ public class NewCardActivity extends AutoLayoutActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CODE_SELECT_PICTURE) {
             if(resultCode == RESULT_OK){
-                Uri selectedImageUri = data.getData();
+                selectedImageUri = data.getData();
                 profileImageView.setImageURI(selectedImageUri);
                 profileImage = getDrawableFromUri(selectedImageUri);
                 Log.e(TAG, "onActivityResult: 10");
+
+
             }
         }
     }
@@ -173,5 +197,23 @@ public class NewCardActivity extends AutoLayoutActivity {
             res = getResources().getDrawable(R.drawable.test1);
         }
         return res;
+    }
+
+    private String getPath(Uri uri) {
+
+        String[] projection = { MediaStore.Images.Media.DATA };
+        Cursor cursor = getContentResolver().query(uri, projection, null, null,null);
+
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+
+        return cursor.getString(column_index);
+    }
+
+    private CognitoCachingCredentialsProvider getCredentialsProvider(){
+        return AWSMobileClient
+                .defaultMobileClient()
+                .getIdentityManager()
+                .getCredentialsProvider();
     }
 }

@@ -10,9 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUser;
 import com.intbridge.projecttellurium.airbridge.MainActivity;
 import com.intbridge.projecttellurium.airbridge.R;
 import com.intbridge.projecttellurium.airbridge.auth.AWSUserPoolHelper;
+import com.intbridge.projecttellurium.airbridge.auth.CognitoHelper;
 import com.intbridge.projecttellurium.airbridge.auth.LoginActivity;
 
 import butterknife.BindView;
@@ -27,6 +29,8 @@ public class SettingFragment extends Fragment {
 
     @BindView(R.id.setting_signin)
     protected Button signinButton;
+    @BindView(R.id.setting_signout)
+    protected Button signoutButton;
 
     public SettingFragment() {}
 
@@ -50,6 +54,12 @@ public class SettingFragment extends Fragment {
                 startActivity(i);
             }
         });
+        signoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signOut();
+            }
+        });
         return v;
     }
 
@@ -57,5 +67,15 @@ public class SettingFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.app_bar_fragment_setting, menu);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    // Sign out user
+    private void signOut() {
+        String username = CognitoHelper.getCurrUser();
+        if(username != null) {
+            CognitoUser user = CognitoHelper.getPool().getUser(username);
+            user.signOut();
+        }
+
     }
 }
