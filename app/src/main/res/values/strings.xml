@@ -58,4 +58,5 @@
     <string name="prompt_address">Address</string>
     <string name="prompt_website">Website</string>
     <string name="prompt_phone">Phone</string>
+    <string name="prompt_username_email">Username or Email</string>
 </resources>

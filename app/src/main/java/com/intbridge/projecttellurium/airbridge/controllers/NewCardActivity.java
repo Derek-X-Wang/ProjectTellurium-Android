@@ -124,6 +124,7 @@ public class NewCardActivity extends AutoLayoutActivity {
 
             new SaveCardTask().execute();
 
+            setResult(RESULT_OK);
             finish();
         }
 
@@ -182,8 +183,6 @@ public class NewCardActivity extends AutoLayoutActivity {
                 profileImageView.setImageURI(selectedImageUri);
                 profileImage = getDrawableFromUri(selectedImageUri);
                 Log.e(TAG, "onActivityResult: 10");
-
-
             }
         }
     }

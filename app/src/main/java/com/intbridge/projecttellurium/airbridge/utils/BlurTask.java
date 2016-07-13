@@ -27,7 +27,6 @@ public class BlurTask {
     private Resources res;
     private WeakReference<Context> contextWeakRef;
     private BlurFactor factor;
-    private Bitmap capture;
     private Callback callback;
     private static ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
 
@@ -45,7 +44,13 @@ public class BlurTask {
                 Context context = contextWeakRef.get();
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inSampleSize = factor.sampling;
-                Bitmap bitmap = BitmapFactory.decodeResource(res, factor.imgId, options);
+                Bitmap bitmap;
+                if(factor.path == null) {
+                    bitmap = BitmapFactory.decodeResource(res, factor.imgId, options);
+                } else {
+                    bitmap = BitmapFactory.decodeFile(factor.path,options);
+                }
+
                 Bitmap newImg = Blur.fastblur(context, bitmap, factor.sampling);
                 final BitmapDrawable bitmapDrawable = new BitmapDrawable(res, newImg);
                 if (callback != null) {

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.badoo.mobile.util.WeakHandler;
+import com.intbridge.projecttellurium.airbridge.auth.LoginActivity;
 import com.intbridge.projecttellurium.airbridge.utils.Fader;
 import com.zhy.autolayout.AutoLayoutActivity;
 
@@ -33,7 +34,7 @@ public class SplashActivity extends AutoLayoutActivity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Intent i = new Intent(SplashActivity.this, MainActivity.class);
+                    Intent i = new Intent(SplashActivity.this, LoginActivity.class);
                     startActivity(i);
                     finish();
                 }

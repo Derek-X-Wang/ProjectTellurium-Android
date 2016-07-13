@@ -1,13 +1,29 @@
 package com.intbridge.projecttellurium.airbridge.utils;
 
 import android.content.Context;
+import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import com.amazonaws.mobile.AWSConfiguration;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.intbridge.projecttellurium.airbridge.R;
+import com.intbridge.projecttellurium.airbridge.models.Card;
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 
 /**
@@ -19,20 +35,32 @@ public class CardGridAdapter extends BaseAdapter {
     private Context host;
     private String[] stringList = {"Test1","Test2","Test3", "Test4", "Test5"};
     private LayoutInflater inflater;
+    private PaginatedQueryList<Card> cards;
+    private static final String TAG = "CardGridAdapter";
 
     public CardGridAdapter(Context h) {
         host = h;
         inflater = (LayoutInflater) host.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
+    public PaginatedQueryList<Card> getCards() {
+        return cards;
+    }
+
+    public void setCards(PaginatedQueryList<Card> cards) {
+        this.cards = cards;
+    }
+
     @Override
     public int getCount() {
-        return stringList.length;
+        if(cards == null) return 0;
+        return cards.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return stringList[position];
+        if(cards == null) return null;
+        return cards.get(position);
     }
 
     @Override
@@ -44,24 +72,36 @@ public class CardGridAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
         ViewHolder holder;
+        RemoteDataHelper helper = new RemoteDataHelper(host);
+        Card card = cards.get(position);
+
         if (row == null) {
             row = inflater.inflate(R.layout.item_gridview, parent, false);
-            holder = new ViewHolder(row);
+            holder = new ViewHolder(row, position);
             row.setTag(holder);
+            //helper.setMyCardItem(row, card.getImageRef());
+            //Log.e(TAG, "getView: "+"create");
         } else {
             holder = (ViewHolder) row.getTag();
+            //Log.e(TAG, "getView: "+"recycle");
         }
-
+        holder.cardName.setText(card.getCardname());
+        if(helper.isImageCached(card.getImageRef())) {
+            helper.setMyCardItemCache(row, card.getImageRef());
+        } else {
+            helper.setMyCardItem(row, card.getImageRef());
+        }
 
         return row;
     }
 
     class ViewHolder {
-        String cardName;
-        ImageView image;
-        ViewHolder(View v) {
-            BlurHelper.with(host).sampling(16).radius(25).image(R.drawable.test1).async().setBackground(v);
-            //Blurry.with(host).radius(25).sampling(2).onto((ViewGroup) v);
+        TextView cardName;
+        CircleImageView image;
+
+        ViewHolder(View v, int position) {
+            cardName = (TextView)v.findViewById(R.id.my_card_gridview_cardname);
+            image = (CircleImageView)v.findViewById(R.id.my_card_gridview_image);
         }
     }
 }

@@ -8,8 +8,14 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.intbridge.projecttellurium.airbridge.R;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
+import com.squareup.picasso.Transformation;
+
+import java.io.File;
 
 /**
  * utils for Blur
@@ -50,6 +56,36 @@ public class BlurHelper {
         public Composer image(int id) {
             factor.imgId = id;
             return this;
+        }
+
+        public Composer imagePath(String path) {
+            factor.path = path;
+            return this;
+        }
+
+        public void Picasso(File file, View imageView) {
+            factor.picasso = true;
+            Transformation trans = new Transformation() {
+                @Override
+                public Bitmap transform(Bitmap source) {
+                    Bitmap res = Blur.fastblur(context, source, factor.radius);
+                    if (res != source) {
+                        source.recycle();
+                    }
+                    return res;
+                }
+
+                @Override
+                public String key() {
+                    return "blur";
+                }
+            };
+
+            Picasso.with(context)
+                    .load(file)
+                    .resize(26,36)
+                    .transform(trans)
+                    .into((ImageView) imageView);
         }
 
         public void setBackground(final View target) {
@@ -96,4 +132,6 @@ class BlurFactor {
     public int radius = DEFAULT_RADIUS;
     public int sampling = DEFAULT_SAMPLING;
     public int imgId;
+    public String path;
+    public boolean picasso = false;
 }

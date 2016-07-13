@@ -24,6 +24,7 @@ import com.intbridge.projecttellurium.airbridge.controllers.ContactFragment;
 import com.intbridge.projecttellurium.airbridge.controllers.DiscoveryFragment;
 import com.intbridge.projecttellurium.airbridge.controllers.NewCardActivity;
 import com.intbridge.projecttellurium.airbridge.controllers.SettingFragment;
+import com.intbridge.projecttellurium.airbridge.utils.RemoteDataHelper;
 import com.intbridge.projecttellurium.airbridge.utils.SendCardAdapter;
 import com.intbridge.projecttellurium.airbridge.views.IconWithTextView;
 import com.orhanobut.dialogplus.DialogPlus;
@@ -55,6 +56,10 @@ public class MainActivity extends AutoLayoutActivity {
 
     private LayoutInflater inflater;
 
+    private String userId;
+    public static final String USER_ID = "USER_ID";
+    private static final int CODE_CREATE_NEW_CARD = 12;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,12 +71,21 @@ public class MainActivity extends AutoLayoutActivity {
         Log.e("test","main1");
         inflater = LayoutInflater.from(this);
 
-
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            userId = extras.getString(USER_ID);
+        }
+        Log.e("test",userId);
+        //new RemoteDataHelper(this).findMyCardsInBackground("derek");
         initView();
     }
 
     public void setActionBarTitle(String title) {
         getSupportActionBar().setTitle(title);
+    }
+
+    public String getUserId() {
+        return userId;
     }
 
     @Override
@@ -111,7 +125,7 @@ public class MainActivity extends AutoLayoutActivity {
             dialog.show();
         } else if(id == R.id.action_addnew) {
             Intent i = new Intent(MainActivity.this, NewCardActivity.class);
-            startActivity(i);
+            startActivityForResult(i,CODE_CREATE_NEW_CARD);
         }
 
         return super.onOptionsItemSelected(item);
@@ -130,6 +144,15 @@ public class MainActivity extends AutoLayoutActivity {
                 .add(R.id.fragment_content, getFragment(R.id.tab_cards))
                 .commit();
         setIconTextAlpha(currentTab);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CODE_CREATE_NEW_CARD) {
+            if(resultCode == RESULT_OK){
+                cardFragment.notifyDataSetChanged();
+            }
+        }
     }
 
     @OnClick({R.id.tab_contacts, R.id.tab_cards, R.id.tab_discovery, R.id.tab_settings})
