@@ -26,11 +26,11 @@ public class BlurTask {
 
     private Resources res;
     private WeakReference<Context> contextWeakRef;
-    private BlurFactor factor;
+    private BlurHelper.BlurFactor factor;
     private Callback callback;
     private static ExecutorService THREAD_POOL = Executors.newCachedThreadPool();
 
-    public BlurTask(View target, BlurFactor factor, Callback callback) {
+    public BlurTask(View target, BlurHelper.BlurFactor factor, Callback callback) {
         this.res = target.getResources();
         this.factor = factor;
         this.callback = callback;

@@ -34,7 +34,7 @@ public class BlurHelper {
 
 
         public Composer(Context context) {
-            factor = new BlurFactor();
+            factor = new BlurHelper.BlurFactor();
             this.context = context;
         }
 
@@ -63,6 +63,13 @@ public class BlurHelper {
             return this;
         }
 
+        public Composer blurFactor(BlurFactor f) {
+            factor.width = f.width;
+            factor.height = f.height;
+            factor.radius = f.radius;
+            return this;
+        }
+
         public void Picasso(File file, View imageView) {
             factor.picasso = true;
             Transformation trans = new Transformation() {
@@ -85,6 +92,32 @@ public class BlurHelper {
                     .load(file)
                     .resize(26,36)
                     .transform(trans)
+                    .into((ImageView) imageView);
+        }
+
+        public void PicassoWithOption(File file, View imageView) {
+            factor.picasso = true;
+            Transformation trans = new Transformation() {
+                @Override
+                public Bitmap transform(Bitmap source) {
+                    Bitmap res = Blur.fastblur(context, source, factor.radius);
+                    if (res != source) {
+                        source.recycle();
+                    }
+                    return res;
+                }
+
+                @Override
+                public String key() {
+                    return "blur";
+                }
+            };
+
+            Picasso.with(context)
+                    .load(file)
+                    .centerCrop()
+                    .transform(trans)
+                    .fit()
                     .into((ImageView) imageView);
         }
 
@@ -120,18 +153,20 @@ public class BlurHelper {
             }
         }
     }
+
+    public static class BlurFactor {
+
+        public static final int DEFAULT_RADIUS = 25;
+        public static final int DEFAULT_SAMPLING = 1;
+
+        public int width;
+        public int height;
+        public int radius = DEFAULT_RADIUS;
+        public int sampling = DEFAULT_SAMPLING;
+        public int imgId;
+        public String path;
+        public boolean picasso = false;
+    }
 }
 
-class BlurFactor {
 
-    public static final int DEFAULT_RADIUS = 25;
-    public static final int DEFAULT_SAMPLING = 1;
-
-    public int width;
-    public int height;
-    public int radius = DEFAULT_RADIUS;
-    public int sampling = DEFAULT_SAMPLING;
-    public int imgId;
-    public String path;
-    public boolean picasso = false;
-}

@@ -87,11 +87,8 @@ public class CardGridAdapter extends BaseAdapter {
             row = inflater.inflate(R.layout.item_gridview, parent, false);
             holder = new ViewHolder(row, position);
             row.setTag(holder);
-            //helper.setMyCardItem(row, card.getImageRef());
-            //Log.e(TAG, "getView: "+"create");
         } else {
             holder = (ViewHolder) row.getTag();
-            //Log.e(TAG, "getView: "+"recycle");
         }
         holder.cardName.setText(card.getCardname());
         if(dirtyCard == null || !dirtyCard.equals(card.getCardname())) {

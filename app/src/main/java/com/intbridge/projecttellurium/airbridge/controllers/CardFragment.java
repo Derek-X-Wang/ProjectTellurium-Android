@@ -43,7 +43,8 @@ public class CardFragment extends Fragment {
 
     Subscription cardListSubscription;
     Observer<PaginatedQueryList<Card>> observer;
-    private final String TAG = "CardFragment";
+    Observable<PaginatedQueryList<Card>> cardListObservable;
+    private final static String TAG = "CardFragment";
 
     public CardFragment() {}
 
@@ -52,17 +53,14 @@ public class CardFragment extends Fragment {
         super.onCreate(savedInstanceState);
         host = (MainActivity)getActivity();
         host.setActionBarTitle("My Cards");
-    }
+        cardListObservable = Observable.fromCallable(new Callable<PaginatedQueryList<Card>>() {
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
-        View v = inflater.inflate(R.layout.fragment_card, container, false);
-        ButterKnife.bind(this,v);
-
-        adapter = new CardGridAdapter(host);
-        gridView.setAdapter(adapter);
+            @Override
+            public PaginatedQueryList<Card> call() {
+                Log.e(TAG, "call: sss" );
+                return new RemoteDataHelper(host).findMyCards(host.getUserId());
+            }
+        });
         observer = new Observer<PaginatedQueryList<Card>>() {
 
             @Override
@@ -79,6 +77,18 @@ public class CardFragment extends Fragment {
                 adapter.notifyDataSetChanged();
             }
         };
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
+        View v = inflater.inflate(R.layout.fragment_card, container, false);
+        ButterKnife.bind(this,v);
+
+        adapter = new CardGridAdapter(host);
+        gridView.setAdapter(adapter);
+
         cardListSubscription = cardListObservable
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -131,15 +141,6 @@ public class CardFragment extends Fragment {
         adapter.setDirtyCard(cardName);
         adapter.notifyDataSetChanged();
     }
-
-    Observable<PaginatedQueryList<Card>> cardListObservable = Observable.fromCallable(new Callable<PaginatedQueryList<Card>>() {
-
-        @Override
-        public PaginatedQueryList<Card> call() {
-            Log.e(TAG, "call: sss" );
-            return new RemoteDataHelper(host).findMyCards(host.getUserId());
-        }
-    });
 
     @Override
     public void onDestroy() {

@@ -14,7 +14,9 @@ import com.amazonaws.mobile.AWSMobileClient;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBQueryExpression;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBSaveExpression;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBScanExpression;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanList;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
@@ -27,6 +29,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.intbridge.projecttellurium.airbridge.R;
 import com.intbridge.projecttellurium.airbridge.models.Card;
+import com.intbridge.projecttellurium.airbridge.models.Discover;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -39,18 +42,23 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class RemoteDataHelper {
     private static final String TAG = "RemoteDataHelper";
-    Context context;
+    private Context context;
     private File imageFile;
+    private String cardName;
 
     public RemoteDataHelper(Context context) {
         this.context = context;
+    }
+
+    private File getFile(String key) {
+        return new File(Environment.getExternalStorageDirectory().toString() + "/" + key);
     }
 
     private TransferObserver initTransferObserver(String key) {
         Log.e(TAG, "initTransferObserver: " );
         AmazonS3 s3 = new AmazonS3Client(getCredentialsProvider());
         TransferUtility transferUtility = new TransferUtility(s3, context);
-        imageFile = new File(Environment.getExternalStorageDirectory().toString() + "/" + key);
+        imageFile = getFile(key);
         return transferUtility.download(
                 AWSConfiguration.AMAZON_S3_USER_FILES_BUCKET,     /* The bucket to upload to */
                 key,    /* The key for the uploaded object */
@@ -149,7 +157,7 @@ public class RemoteDataHelper {
     }
 
     public void setNewCardImageView(final ImageView v, String key) {
-        if(isImageCached(key)) {
+        if(!isImageCached(key)) {
             TransferObserver observer = initTransferObserver(key);
             observer.setTransferListener(new TransferListener(){
 
@@ -205,6 +213,108 @@ public class RemoteDataHelper {
         new GetCardTask().execute(imageRef);
     }
 
+    public PaginatedScanList<Discover> findPeopleNearby(String userId) {
+        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
+        DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+        PaginatedScanList<Discover> result = mapper.scan(Discover.class, scanExpression);
+        // remove card of myself
+        int i = -1;
+        for (Discover d : result) {
+            if(d.getUserId().equals(userId))
+              i = result.indexOf(d);
+        }
+        if(i != -1) {
+            result.remove(i);
+        }
+        Log.e(TAG, "find People nearby: "+result.size());
+        return result;
+    }
+
+    public void setDiscoverPresence(String id) {
+        new SetPresenceTask().execute(id);
+    }
+
+    public void removeDiscoverPresence(String id) {
+        new RemovePresenceTask().execute(id);
+    }
+
+    public void setImage (final ImageView image, String key) {
+        if(isImageCached(key)) {
+            setImageWithCache(image, key);
+        } else {
+            setImageWithDownload(image, key);
+        }
+    }
+
+    public void setBlurImage (final ImageView image, String key, BlurHelper.BlurFactor factor) {
+        if(isImageCached(key)) {
+            setBlurImageWithCache(image, key, factor);
+        } else {
+            setBlurImageWithDownload(image, key, factor);
+        }
+    }
+
+    private void setImageWithCache (ImageView image, String key) {
+        imageFile = getFile(key);
+        Picasso.with(context).load(imageFile).into(image);
+    }
+
+    private void setBlurImageWithCache (ImageView image, String key, BlurHelper.BlurFactor factor) {
+        imageFile = getFile(key);
+        BlurHelper.with(context).blurFactor(factor).PicassoWithOption(imageFile, image);
+    }
+
+    private void setImageWithDownload (final ImageView image, String key) {
+        TransferObserver observer = initTransferObserver(key);
+        observer.setTransferListener(new TransferListener(){
+
+            @Override
+            public void onStateChanged(int id, TransferState state) {
+                if(state == TransferState.COMPLETED) {
+                    Log.e(TAG, "Success: download worked" );
+                    Picasso.with(context).load(imageFile).into(image);
+                }
+            }
+
+            @Override
+            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+            }
+
+            @Override
+            public void onError(int id, Exception ex) {
+                Log.e(TAG, "onError: setImage download failed" );
+            }
+
+        });
+    }
+
+    private void setBlurImageWithDownload (final ImageView image, String key, final BlurHelper.BlurFactor factor) {
+        TransferObserver observer = initTransferObserver(key);
+        observer.setTransferListener(new TransferListener(){
+
+            @Override
+            public void onStateChanged(int id, TransferState state) {
+                if(state == TransferState.COMPLETED) {
+                    Log.e(TAG, "Success: download worked" );
+                    BlurHelper.with(context).blurFactor(factor).PicassoWithOption(imageFile, image);
+                }
+            }
+
+            @Override
+            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+            }
+
+            @Override
+            public void onError(int id, Exception ex) {
+                // do something
+                Log.e(TAG, "onError: setBlurImage download failed" );
+            }
+
+        });
+    }
+
     private CognitoCachingCredentialsProvider getCredentialsProvider(){
         return AWSMobileClient
                 .defaultMobileClient()
@@ -250,6 +360,62 @@ public class RemoteDataHelper {
         protected void onPostExecute(Void result) {
 
             Log.e(TAG, "onPostExecute: ddddd" );
+
+        }
+    }
+
+    private class SetPresenceTask extends AsyncTask<String, Void, Void> {
+
+        protected Void doInBackground(String... userId) {
+            PaginatedQueryList<Card> myCards = findMyCards(userId[0]);
+            if(myCards.size() == 0) {
+                return null;
+            }
+            Card card = myCards.get(0);
+            Discover presence = new Discover();
+            presence.setUserId(card.getUserId());
+            presence.setCardname(card.getCardname());
+            presence.setImageRef(card.getImageRef());
+            presence.setFirstName(card.getFirstName());
+            presence.setLastName(card.getLastName());
+            presence.setPosition(card.getPosition());
+            cardName = card.getCardname();
+
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            mapper.save(presence);
+            return null;
+        }
+
+        protected void onPostExecute(Void result) {
+
+            Log.e(TAG, "onPostExecute: save presence" );
+
+        }
+    }
+
+    private class RemovePresenceTask extends AsyncTask<String, Void, Void> {
+
+        protected Void doInBackground(String... userId) {
+            PaginatedQueryList<Card> myCards = findMyCards(userId[0]);
+            if(myCards.size() == 0) {
+                return null;
+            }
+            Discover presence = new Discover();
+            presence.setUserId(userId[0]);
+            presence.setCardname(cardName);
+
+            AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
+            DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+
+            mapper.delete(presence);
+            return null;
+        }
+
+        protected void onPostExecute(Void result) {
+
+            Log.e(TAG, "onPostExecute: delete presence" );
 
         }
     }

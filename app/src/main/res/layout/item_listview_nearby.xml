@@ -7,23 +7,47 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/profile_image"
+        android:id="@+id/profile_image_nearby"
         android:layout_width="84dp"
         android:layout_height="84dp"
-        android:src="@drawable/test1"
+        android:src="@drawable/user_default"
         app:civ_border_width="1dp"
         app:civ_border_color="#00ffffff"/>
 
     <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
         <com.intbridge.projecttellurium.airbridge.views.BubbleImageView
+            android:id="@+id/item_listview_nearby_bg"
             android:layout_marginLeft="87dp"
             android:layout_marginStart="87dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:src="@drawable/test1"
+            android:layout_height="match_parent"
+            android:src="@drawable/user_default"
             app:siArrowPosition="left"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="122dp"
+            android:layout_marginStart="122dp"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/listview_nearby_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Loading"
+                android:textColor="@color/white"
+                android:textSize="26sp"/>
+            <TextView
+                android:id="@+id/listview_nearby_position"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Loading"
+                android:textColor="@color/white"
+                android:textSize="20sp"/>
+        </LinearLayout>
     </FrameLayout>
 
 </FrameLayout>
