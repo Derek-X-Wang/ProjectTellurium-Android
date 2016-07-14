@@ -59,4 +59,5 @@
     <string name="prompt_website">Website</string>
     <string name="prompt_phone">Phone</string>
     <string name="prompt_username_email">Username or Email</string>
+    <string name="delete_button">Delete</string>
 </resources>

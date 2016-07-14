@@ -3,13 +3,16 @@ package com.intbridge.projecttellurium.airbridge.controllers;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedScanList;
@@ -19,7 +22,12 @@ import com.intbridge.projecttellurium.airbridge.models.Card;
 import com.intbridge.projecttellurium.airbridge.models.Discover;
 import com.intbridge.projecttellurium.airbridge.utils.NearbyAdapter;
 import com.intbridge.projecttellurium.airbridge.utils.RemoteDataHelper;
+import com.intbridge.projecttellurium.airbridge.utils.SendCardAdapter;
+import com.orhanobut.dialogplus.DialogPlus;
+import com.orhanobut.dialogplus.OnItemClickListener;
+import com.orhanobut.logger.Logger;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import butterknife.BindView;
@@ -44,10 +52,12 @@ public class DiscoveryFragment extends Fragment {
     private RemoteDataHelper helper;
 
     Subscription cardListSubscription;
-    Observer<PaginatedScanList<Discover>> observer;
-    Observable<PaginatedScanList<Discover>> cardListObservable;
+    Observer<List<Discover>> observer;
+    Observable<List<Discover>> cardListObservable;
 
-    private final static String TAG = "CardFragment";
+    DialogPlus dialog;
+
+    private final static String TAG = "DiscoveryFragment";
 
     public DiscoveryFragment() {}
 
@@ -57,29 +67,33 @@ public class DiscoveryFragment extends Fragment {
         host = (MainActivity)getActivity();
         host.setActionBarTitle("Discover");
         helper = new RemoteDataHelper(host);
-        helper.setDiscoverPresence(host.getUserId());
+//        helper.setDiscoverPresence(host.getUserId());
         adapter = new NearbyAdapter(host);
 
-        cardListObservable = Observable.fromCallable(new Callable<PaginatedScanList<Discover>>() {
+        cardListObservable = Observable.fromCallable(new Callable<List<Discover>>() {
 
             @Override
-            public PaginatedScanList<Discover> call() {
-                Log.e(TAG, "call: sss" );
+            public List<Discover> call() {
+                Log.e(TAG, "call: sss "+host.getUserId() );
                 return helper.findPeopleNearby(host.getUserId());
             }
         });
-        observer = new Observer<PaginatedScanList<Discover>>() {
+        observer = new Observer<List<Discover>>() {
 
             @Override
             public void onCompleted() {
+                Log.e(TAG, "find People nearby: complete");
             }
 
             @Override
             public void onError(Throwable e) {
+                Log.e(TAG, "find People nearby: onError");
+                e.printStackTrace();
             }
 
             @Override
-            public void onNext(PaginatedScanList<Discover> cards) {
+            public void onNext(List<Discover> cards) {
+                Log.e(TAG, "Find: nearby "+cards.size() );
                 adapter.setList(cards);
                 adapter.notifyDataSetChanged();
             }
@@ -104,12 +118,47 @@ public class DiscoveryFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //Card card = adapter.getCards().get(position);
-                //createIntent(card);
+                showSendCardDialog(adapter.getList().get(position));
                 Log.e(TAG, "onItemClick: update intent" );
             }
         });
         return v;
+    }
+
+    private void showSendCardDialog(final Discover person) {
+        helper.setMyCardsCallback(new RemoteDataHelper.MyCardsCallback() {
+            @Override
+            public void done(final PaginatedQueryList<Card> cards) {
+                final View header = host.getInflater().inflate(R.layout.layout_sendcard_header, null);
+                TextView sendToWho = (TextView) header.findViewById(R.id.sendcard_to_who);
+                ImageView imageView = (ImageView)header.findViewById(R.id.profile_image_sendcard);
+                helper.setImage(imageView, person.getImageRef());
+                sendToWho.setText(String.format("%s %s", person.getFirstName(), person.getLastName()));
+                SendCardAdapter sendCardadapter = new SendCardAdapter(host,cards);
+                dialog = DialogPlus.newDialog(host)
+                        .setAdapter(sendCardadapter)
+                        .setGravity(Gravity.BOTTOM)
+                        .setHeader(header)
+                        .setOnItemClickListener(new OnItemClickListener() {
+                            @Override
+                            public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
+                                Logger.e("onItemClick is","sending card");
+                                helper.addToContactInBackground(person.getUserId(),cards.get(position).getImageRef());
+                                dialog.dismiss();
+                            }
+                        })
+                        .setExpanded(true)  // This will enable the expand feature, (similar to android L share dialog)
+                        .setContentBackgroundResource(android.R.color.transparent)
+                        .create();
+                View holder = dialog.getHolderView();
+                // TODO: implement a new dialog for cleaner code, screen size independent and re-usability
+                // using a trick to get header transparent and content semi-transparent
+                //holder.setBackgroundDrawable(getResources().getDrawable(R.drawable.dialog_content));
+                host.setBgDrawable(holder, R.drawable.dialog_content);
+                dialog.show();
+            }
+        });
+        helper.findMyCardsInBackground(host.getUserId());
     }
 
     @Override
@@ -121,7 +170,7 @@ public class DiscoveryFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        helper.removeDiscoverPresence(host.getUserId());
+//        helper.removeDiscoverPresence(host.getUserId());
         if (cardListSubscription != null && !cardListSubscription.isUnsubscribed()) {
             cardListSubscription.unsubscribe();
         }

@@ -16,6 +16,7 @@ import com.intbridge.projecttellurium.airbridge.models.Discover;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -26,21 +27,20 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class NearbyAdapter extends BaseAdapter {
 
     private Context host;
-    private String[] stringList = {"Test1","Test2","Test3", "Test4", "Test5"};
     private LayoutInflater inflater;
 
-    PaginatedScanList<Discover> list;
+    List<Discover> list;
 
     public NearbyAdapter(Context context) {
         host = context;
         inflater = LayoutInflater.from(context);
     }
 
-    public void setList(PaginatedScanList<Discover> list) {
+    public void setList(List<Discover> list) {
         this.list = list;
     }
 
-    public PaginatedScanList<Discover> getList() {
+    public List<Discover> getList() {
         return list;
     }
 

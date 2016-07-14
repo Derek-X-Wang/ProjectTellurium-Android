@@ -32,6 +32,8 @@ import com.orhanobut.dialogplus.OnItemClickListener;
 import com.orhanobut.logger.Logger;
 import com.zhy.autolayout.AutoLayoutActivity;
 
+import java.util.zip.Inflater;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -66,11 +68,15 @@ public class MainActivity extends AutoLayoutActivity {
     public static final String EMAIL = "EMAIL";
     public static final String ADDRESS = "ADDRESS";
     public static final String WEBSITE = "WEBSITE";
+    public static final String MODE_VIEW = "VIEW";
 
     public static final int CODE_CONFIRM_SIGNUP = 10;
     public static final int CODE_SELECT_PICTURE = 11;
     public static final int CODE_CREATE_NEW_CARD = 12;
     public static final int CODE_EDIT_EXIST_CARD = 13;
+    public static final int CODE_DISPLAY_CARD_DETAIL = 14;
+
+    private RemoteDataHelper helper;
 
 
     @Override
@@ -80,14 +86,18 @@ public class MainActivity extends AutoLayoutActivity {
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         myToolbar.setTitleTextColor(Color.parseColor("#919192"));
         setSupportActionBar(myToolbar);
-        Log.e("test","main1");
+
         inflater = LayoutInflater.from(this);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             userId = extras.getString(USER_ID);
         }
-        Log.e("test",userId);
+
+        helper = new RemoteDataHelper(this);
+        helper.setDiscoverPresence(userId);
+
+        Log.e("Login as",userId);
         //new RemoteDataHelper(this).findMyCardsInBackground("derek");
         initView();
     }
@@ -98,6 +108,10 @@ public class MainActivity extends AutoLayoutActivity {
 
     public String getUserId() {
         return userId;
+    }
+
+    public LayoutInflater getInflater() {
+        return inflater;
     }
 
     @Override
@@ -141,6 +155,12 @@ public class MainActivity extends AutoLayoutActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        helper.removeDiscoverPresence(userId);
     }
 
     private void initView(){
@@ -231,7 +251,7 @@ public class MainActivity extends AutoLayoutActivity {
         tabSettings.setIconAlpha(0);
     }
 
-    private void setBgDrawable(View v, int id){
+    public void setBgDrawable(View v, int id){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             v.setBackground(getDrawable(id));
         } else {

@@ -5,4 +5,11 @@
     android:layout_height="match_parent"
     tools:context=".controllers.ContactFragment">
 
+    <ListView
+        android:id="@+id/fragment_contact_listview"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
 </LinearLayout>

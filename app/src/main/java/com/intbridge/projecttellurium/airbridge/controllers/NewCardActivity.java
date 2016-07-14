@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobile.AWSConfiguration;
@@ -74,9 +75,13 @@ public class NewCardActivity extends AutoLayoutActivity {
     @BindView(R.id.profile_image_newcard)
     protected CircleImageView profileImageView;
 
+    @BindView(R.id.button_delete)
+    protected Button button;
+
     private Drawable profileImage;
     private Uri selectedImageUri;
     private File imageFile;
+    private boolean modeView = false;
 
     private static final String TAG = "NewCardActivity";
     private static final int CODE_SELECT_PICTURE = MainActivity.CODE_SELECT_PICTURE;
@@ -97,7 +102,12 @@ public class NewCardActivity extends AutoLayoutActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            editMode();
+            button.setVisibility(View.VISIBLE);
+            if(extras.getBoolean(MainActivity.MODE_VIEW)){
+                viewMode();
+            } else {
+                editMode();
+            }
         }
 
         initViews();
@@ -107,7 +117,12 @@ public class NewCardActivity extends AutoLayoutActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.app_bar_newcard, menu);
+        if (modeView) {
+            getMenuInflater().inflate(R.menu.app_bar_viewcard, menu);
+            getSupportActionBar().setTitle("Contact");
+        } else {
+            getMenuInflater().inflate(R.menu.app_bar_newcard, menu);
+        }
         return true;
     }
 
@@ -159,6 +174,12 @@ public class NewCardActivity extends AutoLayoutActivity {
                 email.setText(card.getEmail());
                 address.setText(card.getAddress());
                 website.setText(card.getWebsite());
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                });
             }
         });
         helper.getMyCardInBackground(imageRef);
@@ -166,26 +187,41 @@ public class NewCardActivity extends AutoLayoutActivity {
     }
 
     private void viewMode() {
+        modeView = true;
         Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            String imageRef = extras.getString(MainActivity.USER_ID)+"_"+extras.getString(MainActivity.CARD_NAME);
-            cardName.setText(extras.getString(MainActivity.CARD_NAME));
-            cardName.setEnabled(false);
-            firstName.setText(extras.getString(MainActivity.CARD_NAME));
-            firstName.setEnabled(false);
-            lastName.setText(extras.getString(MainActivity.CARD_NAME));
-            lastName.setEnabled(false);
-            phone.setText(extras.getString(MainActivity.CARD_NAME));
-            phone.setEnabled(false);
-            position.setText(extras.getString(MainActivity.CARD_NAME));
-            position.setEnabled(false);
-            email.setText(extras.getString(MainActivity.CARD_NAME));
-            email.setEnabled(false);
-            address.setText(extras.getString(MainActivity.CARD_NAME));
-            address.setEnabled(false);
-            website.setText(extras.getString(MainActivity.CARD_NAME));
-            website.setEnabled(false);
-        }
+        String imageRef = extras.getString(MainActivity.USER_ID)+"_"+extras.getString(MainActivity.CARD_NAME);
+        cardName.setEnabled(false);
+        cardName.setVisibility(View.GONE);
+        firstName.setEnabled(false);
+        lastName.setEnabled(false);
+        phone.setEnabled(false);
+        position.setEnabled(false);
+        email.setEnabled(false);
+        address.setEnabled(false);
+        website.setEnabled(false);
+        RemoteDataHelper helper = new RemoteDataHelper(this);
+        profileImageView.setOnClickListener(null);
+        helper.setCallback(new RemoteDataHelper.Callback() {
+            @Override
+            public void done(Card card) {
+                cardName.setText(card.getCardname());
+                firstName.setText(card.getFirstName());
+                lastName.setText(card.getLastName());
+                phone.setText(card.getPhone());
+                position.setText(card.getPosition());
+                email.setText(card.getEmail());
+                address.setText(card.getAddress());
+                website.setText(card.getWebsite());
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                });
+            }
+        });
+        helper.getMyCardInBackground(imageRef);
+        helper.setNewCardImageView(profileImageView, imageRef);
     }
 
     private class SaveCardTask extends AsyncTask<Void, Void, Void> {

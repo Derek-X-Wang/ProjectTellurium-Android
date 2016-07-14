@@ -11,30 +11,30 @@ import android.widget.TextView;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
 import com.intbridge.projecttellurium.airbridge.R;
 import com.intbridge.projecttellurium.airbridge.models.Card;
+import com.intbridge.projecttellurium.airbridge.models.Contact;
+
+import java.util.List;
 
 /**
- * Pop-up menu adapter
- * Created by Derek on 7/8/2016.
+ *
+ * Created by Derek on 7/14/2016.
  */
-public class SendCardAdapter extends BaseAdapter {
+public class ContactsAdapter extends BaseAdapter {
 
+    private Context host;
     private LayoutInflater inflater;
-    private PaginatedQueryList<Card> list;
+    private List<Card> list;
 
-    public SendCardAdapter(Context context) {
+    public ContactsAdapter(Context context) {
+        host = context;
         inflater = LayoutInflater.from(context);
     }
 
-    public SendCardAdapter(Context context, PaginatedQueryList<Card> data) {
-        inflater = LayoutInflater.from(context);
-        list = data;
-    }
-
-    public PaginatedQueryList<Card> getList() {
+    public List<Card> getList() {
         return list;
     }
 
-    public void setList(PaginatedQueryList<Card> list) {
+    public void setList(List<Card> list) {
         this.list = list;
     }
 
@@ -61,20 +61,24 @@ public class SendCardAdapter extends BaseAdapter {
         View view = convertView;
 
         if (view == null) {
-            view = inflater.inflate(R.layout.item_listview_sendcard, parent, false);
+            view = inflater.inflate(R.layout.item_listview_contacts, parent, false);
 
             viewHolder = new ViewHolder();
-            viewHolder.cardName = (TextView) view.findViewById(R.id.list_item_textview);
+            viewHolder.cardName = (TextView) view.findViewById(R.id.list_item_contact_name);
+            viewHolder.imageView = (ImageView) view.findViewById(R.id.profile_image_contact);
             view.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) view.getTag();
         }
 
-        viewHolder.cardName.setText(list.get(position).getCardname());
+        Card person = list.get(position);
+        String name = String.format("%s %s", person.getFirstName(), person.getLastName());
+        viewHolder.cardName.setText(name);
+        new RemoteDataHelper(host).setImage(viewHolder.imageView, list.get(position).getImageRef());
         return view;
     }
-
     class ViewHolder {
         TextView cardName;
+        ImageView imageView;
     }
 }

@@ -15,8 +15,8 @@
         <ListView
             android:id="@+id/fragment_discovery_listview"
             android:background="@color/default_background_trans"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             android:paddingTop="230dp"
             android:clipToPadding="false"
             android:layout_width="match_parent"

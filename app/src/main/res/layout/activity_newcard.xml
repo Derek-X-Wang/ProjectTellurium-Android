@@ -179,6 +179,16 @@
                 app:met_underlineColor="@color/white"
                 app:met_floatingLabelTextColor="@color/grey"/>
 
+            <View style="@style/Divider"/>
+
+            <Button
+                android:id="@+id/button_delete"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="20dp"
+                android:text="@string/delete_button"
+                android:background="#ff6563"
+                android:visibility="gone"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

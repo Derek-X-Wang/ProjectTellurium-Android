@@ -137,9 +137,18 @@ public class CardFragment extends Fragment {
     }
 
     public void notifyDataSetChanged(String cardName){
-        CardGridAdapter adapter = (CardGridAdapter)gridView.getAdapter();
-        adapter.setDirtyCard(cardName);
-        adapter.notifyDataSetChanged();
+        RemoteDataHelper helper = new RemoteDataHelper(host);
+        helper.setCallback(new RemoteDataHelper.Callback() {
+            @Override
+            public void done(Card card) {
+                CardGridAdapter cardGridAdapter = (CardGridAdapter)gridView.getAdapter();
+                //PaginatedQueryList<Card> list = adapter.getCards();
+                //list.add(card);
+                cardGridAdapter.getCards().add(card);
+                cardGridAdapter.notify();
+
+            }
+        });
     }
 
     @Override

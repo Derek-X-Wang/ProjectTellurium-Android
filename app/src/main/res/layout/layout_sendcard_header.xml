@@ -24,6 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="vertical"
+            android:gravity="center_vertical"
             android:layout_marginStart="128dp"
             android:layout_marginLeft="128dp">
             <TextView
@@ -33,9 +34,10 @@
                 android:text="@string/sendcard_text"
                 android:textSize="18sp"/>
             <TextView
+                android:id="@+id/sendcard_to_who"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="5dp"
+                android:paddingTop="2dp"
                 android:textColor="@android:color/white"
                 android:text="Henry Ironman"
                 android:textSize="18sp"
@@ -48,10 +50,10 @@
         android:layout_marginTop="18dp"
         android:layout_marginLeft="24dp"
         android:layout_marginStart="24dp"
-        android:id="@+id/profile_image"
+        android:id="@+id/profile_image_sendcard"
         android:layout_width="96dp"
         android:layout_height="96dp"
-        android:src="@drawable/test1"
+        android:src="@drawable/user_default"
         app:civ_border_width="1dp"
         app:civ_border_color="#00ffffff"/>
 

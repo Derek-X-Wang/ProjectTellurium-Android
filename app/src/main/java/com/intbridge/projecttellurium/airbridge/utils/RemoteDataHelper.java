@@ -29,10 +29,13 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.intbridge.projecttellurium.airbridge.R;
 import com.intbridge.projecttellurium.airbridge.models.Card;
+import com.intbridge.projecttellurium.airbridge.models.Contact;
 import com.intbridge.projecttellurium.airbridge.models.Discover;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -213,24 +216,57 @@ public class RemoteDataHelper {
         new GetCardTask().execute(imageRef);
     }
 
-    public PaginatedScanList<Discover> findPeopleNearby(String userId) {
+    public List<Discover> findPeopleNearby(String userId) {
         AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
         DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
-
         DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
         PaginatedScanList<Discover> result = mapper.scan(Discover.class, scanExpression);
         // remove card of myself
-        int i = -1;
+        List<Discover> resultWithoutMe = new ArrayList<>();
         for (Discover d : result) {
-            if(d.getUserId().equals(userId))
-              i = result.indexOf(d);
-        }
-        if(i != -1) {
-            result.remove(i);
+            if(!d.getUserId().equals(userId))
+              resultWithoutMe.add(d);
         }
         Log.e(TAG, "find People nearby: "+result.size());
-        return result;
+        return resultWithoutMe;
     }
+
+    public Contact getMyContact(String userId) {
+        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
+        DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+        Contact contact = new Contact();
+        contact.setUserId(userId);
+        return mapper.load(contact);
+    }
+
+    public void addToContact(String sendToWhoUserId, String myCardKey) {
+        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
+        DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+        Contact contact = mapper.load(Contact.class, sendToWhoUserId);
+        if (contact == null) {
+            contact = new Contact();
+            contact.setUserId(sendToWhoUserId);
+        }
+        List<String> list = contact.getContacts();
+        if (list == null) list = new ArrayList<>();
+        boolean exist = false;
+        for (String sample : list) {
+            if (sample.equals(myCardKey)){
+                exist = true;
+            }
+        }
+        if (!exist) {
+            list.add(myCardKey);
+            contact.setContacts(list);
+            mapper.save(contact);
+        }
+
+    }
+
+    public void addToContactInBackground(String sendToWhoUserId, String myCardKey) {
+        new AddToContactTask().execute(sendToWhoUserId,myCardKey);
+    }
+
 
     public void setDiscoverPresence(String id) {
         new SetPresenceTask().execute(id);
@@ -322,16 +358,15 @@ public class RemoteDataHelper {
                 .getCredentialsProvider();
     }
 
-    private class FindMyCardsTask extends AsyncTask<String, Void, Void> {
+    private class FindMyCardsTask extends AsyncTask<String, Void, PaginatedQueryList<Card>> {
 
-        protected Void doInBackground(String... id) {
-            findMyCards(id[0]);
-            return null;
+        protected PaginatedQueryList<Card> doInBackground(String... id) {
+            return findMyCards(id[0]);
         }
 
-        protected void onPostExecute(Void result) {
-
-            Log.e(TAG, "onPostExecute: ddddd" );
+        protected void onPostExecute(PaginatedQueryList<Card> result) {
+            myCardsCallback.done(result);
+            Log.e(TAG, "onPostExecute: FindMyCardsTask" );
 
         }
     }
@@ -346,6 +381,18 @@ public class RemoteDataHelper {
         protected void onPostExecute(Card result) {
             Log.e(TAG, "onPostExecute: ddddd" );
             callback.done(result);
+        }
+    }
+
+    private class AddToContactTask extends AsyncTask<String, Void, Void> {
+
+        protected Void doInBackground(String... s) {
+            addToContact(s[0],s[1]);
+            return null;
+        }
+
+        protected void onPostExecute(Void result) {
+            Log.e(TAG, "onPostExecute: ddddd" );
         }
     }
 
@@ -431,6 +478,11 @@ public class RemoteDataHelper {
 
     private Callback callback = null;
 
+    private MyCardsCallback myCardsCallback = null;
+
+    public void setMyCardsCallback(MyCardsCallback myCardsCallback) {
+        this.myCardsCallback = myCardsCallback;
+    }
 
     public void setCallback(Callback c){
         this.callback = c;
@@ -438,5 +490,9 @@ public class RemoteDataHelper {
 
     public interface Callback {
         abstract void done(Card card);
+    }
+
+    public interface MyCardsCallback {
+        abstract void done(PaginatedQueryList<Card> cards);
     }
 }
