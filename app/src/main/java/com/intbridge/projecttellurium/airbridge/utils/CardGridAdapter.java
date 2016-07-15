@@ -84,18 +84,27 @@ public class CardGridAdapter extends BaseAdapter {
         Card card = cards.get(position);
 
         if (row == null) {
+            //Log.e(TAG, "getView null: "+position );
             row = inflater.inflate(R.layout.item_gridview, parent, false);
-            holder = new ViewHolder(row, position);
+            holder = new ViewHolder();
+            holder.cardName = (TextView)row.findViewById(R.id.my_card_gridview_cardname);
+            holder.profileImageView = (ImageView)row.findViewById(R.id.my_card_gridview_image);
+            holder.backgroundImageView = (ImageView)row.findViewById(R.id.my_card_gridview_bg);
             row.setTag(holder);
         } else {
+            //Log.e(TAG, "getView not null: "+position );
             holder = (ViewHolder) row.getTag();
         }
         holder.cardName.setText(card.getCardname());
-        if(dirtyCard == null || !dirtyCard.equals(card.getCardname())) {
-            helper.setMyCardItemAutoOption(row, card.getImageRef());
-        } else {
-            helper.setMyCardItem(row, card.getImageRef());
-        }
+        helper.setImage(holder.profileImageView, card.getImageRef());
+        BlurHelper.BlurFactor factor = new BlurHelper.BlurFactor();
+        factor.radius = 25;
+        helper.setBlurImage(holder.backgroundImageView, card.getImageRef(), factor);
+//        if(dirtyCard == null || !dirtyCard.equals(card.getCardname())) {
+//            helper.setMyCardItemAutoOption(row, card.getImageRef());
+//        } else {
+//            helper.setMyCardItem(row, card.getImageRef());
+//        }
 
 
         return row;
@@ -103,11 +112,7 @@ public class CardGridAdapter extends BaseAdapter {
 
     class ViewHolder {
         TextView cardName;
-        CircleImageView image;
-
-        ViewHolder(View v, int position) {
-            cardName = (TextView)v.findViewById(R.id.my_card_gridview_cardname);
-            image = (CircleImageView)v.findViewById(R.id.my_card_gridview_image);
-        }
+        ImageView profileImageView;
+        ImageView backgroundImageView;
     }
 }

@@ -101,33 +101,16 @@ public class CardFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Card card = adapter.getCards().get(position);
                 createIntent(card);
-                Log.e(TAG, "onItemClick: update intent" );
-//                RemoteDataHelper helper = new RemoteDataHelper(host);
-//                helper.setCallback(new RemoteDataHelper.Callback() {
-//                    @Override
-//                    public void done(Card newCard) {
-//                        createIntent(newCard);
-//                    }
-//                });
-
-
             }
         });
         return v;
     }
 
     private void createIntent(Card card) {
-        Intent i = new Intent(host, NewCardActivity.class);
+        Intent i = new Intent(getActivity(), NewCardActivity.class);
         i.putExtra(MainActivity.USER_ID, card.getUserId());
         i.putExtra(MainActivity.CARD_NAME, card.getCardname());
-        i.putExtra(MainActivity.FIRST_NAME, card.getFirstName());
-        i.putExtra(MainActivity.LAST_NAME, card.getLastName());
-        i.putExtra(MainActivity.PHONE, card.getPhone());
-        i.putExtra(MainActivity.POSITION, card.getPosition());
-        i.putExtra(MainActivity.EMAIL, card.getEmail());
-        i.putExtra(MainActivity.ADDRESS, card.getAddress());
-        i.putExtra(MainActivity.WEBSITE, card.getWebsite());
-        startActivityForResult(i,MainActivity.CODE_EDIT_EXIST_CARD);
+        host.startActivityForResult(i,MainActivity.CODE_EDIT_EXIST_CARD);
     }
 
     @Override
@@ -145,7 +128,7 @@ public class CardFragment extends Fragment {
                 //PaginatedQueryList<Card> list = adapter.getCards();
                 //list.add(card);
                 cardGridAdapter.getCards().add(card);
-                cardGridAdapter.notify();
+                cardGridAdapter.notifyDataSetChanged();
 
             }
         });
@@ -157,5 +140,20 @@ public class CardFragment extends Fragment {
         if (cardListSubscription != null && !cardListSubscription.isUnsubscribed()) {
             cardListSubscription.unsubscribe();
         }
+    }
+
+    public void updateData() {
+        Log.e(TAG, "updateData: ");
+        RemoteDataHelper helper = new RemoteDataHelper(host);
+        helper.setMyCardsCallback(new RemoteDataHelper.MyCardsCallback() {
+            @Override
+            public void done(PaginatedQueryList<Card> cards) {
+                adapter.setCards(cards);
+                adapter.notifyDataSetChanged();
+                //gridView.invalidateViews();
+                Log.e(TAG, "updateData: here count = "+cards.size());
+            }
+        });
+        helper.findMyCardsInBackground(host.getUserId());
     }
 }

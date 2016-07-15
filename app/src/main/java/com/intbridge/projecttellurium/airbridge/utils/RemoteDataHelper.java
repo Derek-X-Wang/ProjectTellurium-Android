@@ -44,6 +44,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * Created by Derek on 7/12/2016.
  */
 public class RemoteDataHelper {
+
+    // TODO: re-packaging everything and find a better structure
+
     private static final String TAG = "RemoteDataHelper";
     private Context context;
     private File imageFile;
@@ -231,6 +234,25 @@ public class RemoteDataHelper {
         return resultWithoutMe;
     }
 
+    public List<Card> getMyContactCards(String userId) {
+        Contact contactBook = getMyContact(userId);
+        List<String> list = contactBook.getContacts();
+        List<Card> cardList = new ArrayList<>();
+        if (list != null) {
+            for (String key : list) {
+                // TODO: prevent from having card name include "_"
+                String[] set = key.split("_");
+                Card card = getMyCard(set[0],set[1]);
+                cardList.add(card);
+            }
+        }
+        return cardList;
+    }
+
+    public void getMyContactCardsInBackground(String userId) {
+        new GetMyContactCardsTask().execute(userId);
+    }
+
     public Contact getMyContact(String userId) {
         AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
         DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
@@ -351,6 +373,54 @@ public class RemoteDataHelper {
         });
     }
 
+    public void deleteContact(String userId, String selectedContactKey) {
+        // delete in DynamoDB
+        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
+        DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+        Contact contact = mapper.load(Contact.class, userId);
+        List<String> list = contact.getContacts();
+        List<String> newList =  new ArrayList<>();
+        for (String s : list)
+            if (!s.equals(selectedContactKey))
+                newList.add(s);
+        contact.setContacts(newList);
+        mapper.save(contact);
+        // delete image in local
+        File deleteFile = getFile(selectedContactKey);
+        if (deleteFile.delete()) {
+            Log.e(TAG, "deleteContact: success delete local");
+        } else {
+            Log.e(TAG, "deleteContact: fail delete local");
+        }
+    }
+
+    public void deleteMyCard(String userId, String cardName) {
+        // delete in DynamoDB
+        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
+        DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+        Card card = mapper.load(Card.class, userId, cardName);
+        mapper.delete(card);
+        // delete image in local
+        String imageRef = userId+"_"+cardName;
+        File deleteFile = getFile(imageRef);
+        if (deleteFile.delete()) {
+            Log.e(TAG, "deleteMyCard: success delete local");
+        } else {
+            Log.e(TAG, "deleteMyCard: fail delete local");
+        }
+        // delete image in S3
+        AmazonS3 s3 = new AmazonS3Client(getCredentialsProvider());
+        s3.deleteObject(AWSConfiguration.AMAZON_S3_USER_FILES_BUCKET, imageRef);
+    }
+
+    public void deleteContactInBackground(String userId, String selectedContactKey) {
+        new DeleteContactTask().execute(userId,selectedContactKey);
+    }
+
+    public void deleteMyCardInBackground(String userId, String cardName) {
+        new DeleteCardTask().execute(userId,cardName);
+    }
+
     private CognitoCachingCredentialsProvider getCredentialsProvider(){
         return AWSMobileClient
                 .defaultMobileClient()
@@ -467,6 +537,43 @@ public class RemoteDataHelper {
         }
     }
 
+    private class DeleteContactTask extends AsyncTask<String, Void, Void> {
+
+        protected Void doInBackground(String... s) {
+            deleteContact(s[0],s[1]);
+            return null;
+        }
+
+        protected void onPostExecute(Void result) {
+            Log.e(TAG, "onPostExecute: delete contact" );
+        }
+    }
+
+    private class DeleteCardTask extends AsyncTask<String, Void, Void> {
+
+        protected Void doInBackground(String... s) {
+            deleteMyCard(s[0],s[1]);
+            return null;
+        }
+
+        protected void onPostExecute(Void result) {
+            Log.e(TAG, "onPostExecute: delete card" );
+
+        }
+    }
+
+    private class GetMyContactCardsTask extends AsyncTask<String, Void, List<Card>> {
+
+        protected List<Card> doInBackground(String... s) {
+            return getMyContactCards(s[0]);
+        }
+
+        protected void onPostExecute(List<Card> result) {
+            contactsCallback.done(result);
+            Log.e(TAG, "onPostExecute: get contact cards" );
+        }
+    }
+
     public class TaskInfo {
         public View v;
         public String key;
@@ -479,6 +586,12 @@ public class RemoteDataHelper {
     private Callback callback = null;
 
     private MyCardsCallback myCardsCallback = null;
+
+    private ContactsCallback contactsCallback = null;
+
+    public void setContactsCallback(ContactsCallback contactsCallback) {
+        this.contactsCallback = contactsCallback;
+    }
 
     public void setMyCardsCallback(MyCardsCallback myCardsCallback) {
         this.myCardsCallback = myCardsCallback;
@@ -494,5 +607,9 @@ public class RemoteDataHelper {
 
     public interface MyCardsCallback {
         abstract void done(PaginatedQueryList<Card> cards);
+    }
+
+    public interface ContactsCallback {
+        abstract void done(List<Card> cards);
     }
 }

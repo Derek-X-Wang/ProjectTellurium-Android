@@ -68,6 +68,7 @@ public class MainActivity extends AutoLayoutActivity {
     public static final String EMAIL = "EMAIL";
     public static final String ADDRESS = "ADDRESS";
     public static final String WEBSITE = "WEBSITE";
+    public static final String IMAGE_REF = "IMAGE_REF";
     public static final String MODE_VIEW = "VIEW";
 
     public static final int CODE_CONFIRM_SIGNUP = 10;
@@ -75,6 +76,8 @@ public class MainActivity extends AutoLayoutActivity {
     public static final int CODE_CREATE_NEW_CARD = 12;
     public static final int CODE_EDIT_EXIST_CARD = 13;
     public static final int CODE_DISPLAY_CARD_DETAIL = 14;
+
+    private static final String TAG = "MainActivity";
 
     private RemoteDataHelper helper;
 
@@ -128,27 +131,7 @@ public class MainActivity extends AutoLayoutActivity {
         int id = item.getItemId();
 
         if(id == R.id.action_inbox) {
-            View header = inflater.inflate(R.layout.layout_sendcard_header, null);
-            SendCardAdapter adapter = new SendCardAdapter(this);
-            DialogPlus dialog = DialogPlus.newDialog(this)
-                    .setAdapter(adapter)
-                    .setGravity(Gravity.BOTTOM)
-                    .setHeader(header)
-                    .setOnItemClickListener(new OnItemClickListener() {
-                        @Override
-                        public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
-                            Logger.d("this is",item);
-                        }
-                    })
-                    .setExpanded(true)  // This will enable the expand feature, (similar to android L share dialog)
-                    .setContentBackgroundResource(android.R.color.transparent)
-                    .create();
-            View holder = dialog.getHolderView();
-            // TODO: implement a new dialog for cleaner code, screen size independent and re-usability
-            // using a trick to get header transparent and content semi-transparent
-            //holder.setBackgroundDrawable(getResources().getDrawable(R.drawable.dialog_content));
-            setBgDrawable(holder, R.drawable.dialog_content);
-            dialog.show();
+
         } else if(id == R.id.action_addnew) {
             Intent i = new Intent(MainActivity.this, NewCardActivity.class);
             startActivityForResult(i,CODE_CREATE_NEW_CARD);
@@ -180,16 +163,21 @@ public class MainActivity extends AutoLayoutActivity {
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        Log.e(TAG, "onActivityResult: ??");
         if (requestCode == CODE_CREATE_NEW_CARD) {
             if(resultCode == RESULT_OK){
-                String cardName = data.getExtras().getString(CARD_NAME);
-                cardFragment.notifyDataSetChanged(cardName);
+                Log.e(TAG, "onActivityResult: 12");
+                cardFragment.updateData();
             }
         } else if (requestCode == CODE_EDIT_EXIST_CARD) {
             if(resultCode == RESULT_OK){
-                String cardName = data.getExtras().getString(CARD_NAME);
-                cardFragment.notifyDataSetChanged(cardName);
+                Log.e(TAG, "onActivityResult: 13");
+                cardFragment.updateData();
+            }
+        } else if (requestCode == CODE_DISPLAY_CARD_DETAIL) {
+            if(resultCode == RESULT_OK){
+                Log.e(TAG, "onActivityResult: 14");
+                contactFragment.updateData();
             }
         }
     }

@@ -3,8 +3,8 @@
     package="com.intbridge.projecttellurium.airbridge">
 
     <!-- Needed permissions in order to scan for beacons. -->
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <!--<uses-permission android:name="android.permission.BLUETOOTH" />-->
+    <!--<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />-->
 
     <!-- Declaration that this app is usable on phones with Bluetooth Low Energy. -->
     <uses-feature
@@ -24,6 +24,7 @@
 
     <uses-permission android:name="com.amazon.mysampleapp.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />

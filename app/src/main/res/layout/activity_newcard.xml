@@ -41,7 +41,7 @@
                 app:met_textColor="@color/white"
                 app:met_textColorHint="@color/grey"
                 app:met_underlineColor="@color/white"
-                app:met_floatingLabelTextColor="@color/grey"/>
+                app:met_floatingLabelTextColor="@color/white"/>
 
             <View style="@style/Divider"/>
 
@@ -75,7 +75,7 @@
                     app:met_textColor="@color/white"
                     app:met_textColorHint="@color/grey"
                     app:met_underlineColor="@color/white"
-                    app:met_floatingLabelTextColor="@color/grey"/>
+                    app:met_floatingLabelTextColor="@color/white"/>
 
                 <View
                     android:layout_width="10dp"
@@ -94,7 +94,7 @@
                     app:met_textColor="@color/white"
                     app:met_textColorHint="@color/grey"
                     app:met_underlineColor="@color/white"
-                    app:met_floatingLabelTextColor="@color/grey"/>
+                    app:met_floatingLabelTextColor="@color/white"/>
 
 
             </LinearLayout>
@@ -113,7 +113,7 @@
                 app:met_textColor="@color/white"
                 app:met_textColorHint="@color/grey"
                 app:met_underlineColor="@color/white"
-                app:met_floatingLabelTextColor="@color/grey"/>
+                app:met_floatingLabelTextColor="@color/white"/>
 
             <View style="@style/Divider"/>
 
@@ -129,7 +129,7 @@
                 app:met_textColor="@color/white"
                 app:met_textColorHint="@color/grey"
                 app:met_underlineColor="@color/white"
-                app:met_floatingLabelTextColor="@color/grey"/>
+                app:met_floatingLabelTextColor="@color/white"/>
 
             <View style="@style/Divider"/>
 
@@ -145,7 +145,7 @@
                 app:met_textColor="@color/white"
                 app:met_textColorHint="@color/grey"
                 app:met_underlineColor="@color/white"
-                app:met_floatingLabelTextColor="@color/grey"/>
+                app:met_floatingLabelTextColor="@color/white"/>
 
             <View style="@style/Divider"/>
 
@@ -161,7 +161,7 @@
                 app:met_textColor="@color/white"
                 app:met_textColorHint="@color/grey"
                 app:met_underlineColor="@color/white"
-                app:met_floatingLabelTextColor="@color/grey"/>
+                app:met_floatingLabelTextColor="@color/white"/>
 
             <View style="@style/Divider"/>
 
@@ -177,7 +177,7 @@
                 app:met_textColor="@color/white"
                 app:met_textColorHint="@color/grey"
                 app:met_underlineColor="@color/white"
-                app:met_floatingLabelTextColor="@color/grey"/>
+                app:met_floatingLabelTextColor="@color/white"/>
 
             <View style="@style/Divider"/>
 
@@ -185,10 +185,14 @@
                 android:id="@+id/button_delete"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="20dp"
+                android:padding="10dp"
                 android:text="@string/delete_button"
+                android:textColor="@color/white"
+                android:textStyle="bold"
                 android:background="#ff6563"
                 android:visibility="gone"/>
+
+            <View style="@style/Divider"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
 import com.intbridge.projecttellurium.airbridge.MainActivity;
 import com.intbridge.projecttellurium.airbridge.R;
 import com.intbridge.projecttellurium.airbridge.models.Card;
@@ -66,23 +67,9 @@ public class ContactFragment extends Fragment {
         adapter = new ContactsAdapter(host);
         helper = new RemoteDataHelper(host);
         cardListObservable = Observable.fromCallable(new Callable<List<Card>>() {
-
             @Override
             public List<Card> call() {
-                Log.e(TAG, "call: ddd" );
-                Contact contactBook = helper.getMyContact(host.getUserId());
-                List<String> list = contactBook.getContacts();
-                List<Card> cardList = new ArrayList<Card>();
-                if (list != null) {
-                    for (String key : list) {
-                        // TODO: prevent has card name include "_"
-                        String[] set = key.split("_");
-                        Card card = helper.getMyCard(set[0],set[1]);
-                        cardList.add(card);
-                    }
-                }
-                Log.e(TAG, "call: contact"+cardList.size() );
-                return cardList;
+                return helper.getMyContactCards(host.getUserId());
             }
         });
         observer = new Observer<List<Card>>() {
@@ -126,7 +113,7 @@ public class ContactFragment extends Fragment {
                 i.putExtra(MainActivity.MODE_VIEW, true);
                 i.putExtra(MainActivity.USER_ID, selectedCard.getUserId());
                 i.putExtra(MainActivity.CARD_NAME,selectedCard.getCardname());
-                startActivity(i);
+                host.startActivityForResult(i,MainActivity.CODE_DISPLAY_CARD_DETAIL);
             }
         });
         return v;
@@ -138,4 +125,17 @@ public class ContactFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
+    public void updateData() {
+        Log.e(TAG, "updateData: ");
+        RemoteDataHelper helper = new RemoteDataHelper(host);
+        helper.setContactsCallback(new RemoteDataHelper.ContactsCallback() {
+            @Override
+            public void done(List<Card> cards) {
+                adapter.setList(cards);
+                adapter.notifyDataSetChanged();
+                Log.e(TAG, "updateData: here count = "+cards.size());
+            }
+        });
+        helper.getMyContactCardsInBackground(host.getUserId());
+    }
 }

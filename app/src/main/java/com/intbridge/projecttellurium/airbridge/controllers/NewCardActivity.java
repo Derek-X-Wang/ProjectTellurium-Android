@@ -3,8 +3,11 @@ package com.intbridge.projecttellurium.airbridge.controllers;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -44,6 +47,8 @@ import com.zhy.autolayout.AutoLayoutActivity;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 import butterknife.BindView;
@@ -83,6 +88,7 @@ public class NewCardActivity extends AutoLayoutActivity {
     private File imageFile;
     private boolean modeView = false;
 
+    private static final int IMAGE_DOWN_SAMPLE_SIZE = 5;
     private static final String TAG = "NewCardActivity";
     private static final int CODE_SELECT_PICTURE = MainActivity.CODE_SELECT_PICTURE;
 
@@ -133,7 +139,6 @@ public class NewCardActivity extends AutoLayoutActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if(id == R.id.action_create) {
-            Log.e(TAG, "onOptionsItemSelected: "+CognitoHelper.getCurrUser() );
             newCard = new Card();
             newCard.setUserId(CognitoHelper.getCurrUser());
             newCard.setCardname(cardName.getText().toString());
@@ -158,14 +163,15 @@ public class NewCardActivity extends AutoLayoutActivity {
     }
 
     private void editMode() {
+        final Activity activity = this;
         Bundle extras = getIntent().getExtras();
         String imageRef = extras.getString(MainActivity.USER_ID)+"_"+extras.getString(MainActivity.CARD_NAME);
-        RemoteDataHelper helper = new RemoteDataHelper(this);
+        final RemoteDataHelper helper = new RemoteDataHelper(this);
         cardName.setEnabled(false);
         profileImageView.setOnClickListener(null);
         helper.setCallback(new RemoteDataHelper.Callback() {
             @Override
-            public void done(Card card) {
+            public void done(final Card card) {
                 cardName.setText(card.getCardname());
                 firstName.setText(card.getFirstName());
                 lastName.setText(card.getLastName());
@@ -177,7 +183,12 @@ public class NewCardActivity extends AutoLayoutActivity {
                 button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        helper.deleteMyCardInBackground(card.getUserId(),card.getCardname());
+                        Log.e(TAG, "onClick: delete card" );
+                        Intent intent = new Intent();
+                        intent.putExtra(MainActivity.CARD_NAME,card.getCardname());
 
+                        exit();
                     }
                 });
             }
@@ -187,6 +198,7 @@ public class NewCardActivity extends AutoLayoutActivity {
     }
 
     private void viewMode() {
+        final Activity activity = this;
         modeView = true;
         Bundle extras = getIntent().getExtras();
         String imageRef = extras.getString(MainActivity.USER_ID)+"_"+extras.getString(MainActivity.CARD_NAME);
@@ -199,11 +211,11 @@ public class NewCardActivity extends AutoLayoutActivity {
         email.setEnabled(false);
         address.setEnabled(false);
         website.setEnabled(false);
-        RemoteDataHelper helper = new RemoteDataHelper(this);
+        final RemoteDataHelper helper = new RemoteDataHelper(this);
         profileImageView.setOnClickListener(null);
         helper.setCallback(new RemoteDataHelper.Callback() {
             @Override
-            public void done(Card card) {
+            public void done(final Card card) {
                 cardName.setText(card.getCardname());
                 firstName.setText(card.getFirstName());
                 lastName.setText(card.getLastName());
@@ -215,7 +227,11 @@ public class NewCardActivity extends AutoLayoutActivity {
                 button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        helper.deleteContactInBackground(CognitoHelper.getCurrUser(), card.getImageRef());
+                        Log.e(TAG, "onClick: delete contact" );
+                        Intent intent = new Intent();
+                        intent.putExtra(MainActivity.IMAGE_REF,card.getImageRef());
+                        exit();
                     }
                 });
             }
@@ -224,35 +240,65 @@ public class NewCardActivity extends AutoLayoutActivity {
         helper.setNewCardImageView(profileImageView, imageRef);
     }
 
+    private void exit() {
+        setResult(RESULT_OK);
+        finish();
+    }
+
     private class SaveCardTask extends AsyncTask<Void, Void, Void> {
 
         protected Void doInBackground(Void... card) {
-
+            Log.e(TAG, "doInBackground: SaveCardTask" );
+            // Save to DynamoDB
             AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
-            Log.e(TAG, "onOptionsItemSelected: " + "here2");
             String key = newCard.getImageRef();
             mapper.save(newCard, new DynamoDBSaveExpression());
-            Log.e(TAG, "onOptionsItemSelected: " + "here1");
+
             if(selectedImageUri != null) {
+                Log.e(TAG, "doInBackground: save image process" );
+                // Save image to cache
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inSampleSize = IMAGE_DOWN_SAMPLE_SIZE;
+                Bitmap bitmap = BitmapFactory.decodeFile(getPath(selectedImageUri), options);
+                File imageCache = new File(Environment.getExternalStorageDirectory().toString() + "/" + key);
+                storeImage(bitmap,imageCache);
+                //Bitmap ThumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(imagePath), THUMBSIZE, THUMBSIZE);
+                // Save to S3
                 AmazonS3 s3 = new AmazonS3Client(getCredentialsProvider());
                 TransferUtility transferUtility = new TransferUtility(s3, getApplicationContext());
                 TransferObserver observer = transferUtility.upload(
                         AWSConfiguration.AMAZON_S3_USER_FILES_BUCKET,     /* The bucket to upload to */
                         key,    /* The key for the uploaded object */
-                        new File(getPath(selectedImageUri))        /* The file where the data to upload exists */
+                        imageCache        /* The file where the data to upload exists */
                 );
-                Log.e(TAG, "doInBackground: wwww" );
+                Log.e(TAG, "doInBackground: save image to S3" );
             }
-            //new RemoteDataHelper(getApplicationContext()).setImageView(profileImageView, "ddd_cardddd");
-            Log.e(TAG, "doInBackground: dddd" );
+
             return null;
         }
 
         protected void onPostExecute(Void result) {
 
-            Log.e(TAG, "onPostExecute: ddddd" );
+            Log.e(TAG, "onPostExecute: SaveCardTask" );
 
+        }
+    }
+
+    private void storeImage(Bitmap image, File dest) {
+        if (dest == null) {
+            Log.d(TAG,
+                    "Error creating media file, check storage permissions: ");// e.getMessage());
+            return;
+        }
+        try {
+            FileOutputStream fos = new FileOutputStream(dest);
+            image.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+            fos.close();
+        } catch (FileNotFoundException e) {
+            Log.d(TAG, "File not found: " + e.getMessage());
+        } catch (IOException e) {
+            Log.d(TAG, "Error accessing file: " + e.getMessage());
         }
     }
 
