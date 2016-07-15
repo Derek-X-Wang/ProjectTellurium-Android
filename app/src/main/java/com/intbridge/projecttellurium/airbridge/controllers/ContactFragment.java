@@ -21,7 +21,6 @@ import com.intbridge.projecttellurium.airbridge.models.Contact;
 import com.intbridge.projecttellurium.airbridge.models.Discover;
 import com.intbridge.projecttellurium.airbridge.utils.ContactsAdapter;
 import com.intbridge.projecttellurium.airbridge.utils.RemoteDataHelper;
-import com.squareup.haha.perflib.Main;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -16,6 +16,7 @@ import com.intbridge.projecttellurium.airbridge.R;
 import com.intbridge.projecttellurium.airbridge.auth.AWSUserPoolHelper;
 import com.intbridge.projecttellurium.airbridge.auth.CognitoHelper;
 import com.intbridge.projecttellurium.airbridge.auth.LoginActivity;
+import com.intbridge.projecttellurium.airbridge.utils.RemoteDataHelper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -31,6 +32,8 @@ public class SettingFragment extends Fragment {
     protected Button signinButton;
     @BindView(R.id.setting_signout)
     protected Button signoutButton;
+    @BindView(R.id.setting_delete_cardbox)
+    protected Button deleteButton;
 
     public SettingFragment() {}
 
@@ -58,6 +61,14 @@ public class SettingFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 signOut();
+                Intent i = new Intent(host, LoginActivity.class);
+                startActivity(i);
+            }
+        });
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new RemoteDataHelper(host).deleteMyCardBoxInBackground(host.getUserId());
             }
         });
         return v;

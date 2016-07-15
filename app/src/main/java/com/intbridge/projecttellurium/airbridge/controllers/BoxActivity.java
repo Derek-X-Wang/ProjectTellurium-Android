@@ -140,7 +140,6 @@ public class BoxActivity extends AutoLayoutActivity {
                                 .setOnItemClickListener(new OnItemClickListener() {
                                     @Override
                                     public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
-                                        Logger.e("onItemClick is","sending card to box");
                                         helper.placeCardInBoxInBackground(adapter.getList().get(boxListPosition).getUserId(), cards.get(position).getImageRef());
                                         dialog.dismiss();
                                     }
@@ -186,7 +185,6 @@ public class BoxActivity extends AutoLayoutActivity {
                             .setOnItemClickListener(new OnItemClickListener() {
                                 @Override
                                 public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
-                                    Logger.e("onItemClick is","Create and sending card to box");
                                     helper.createCardBoxInBackground(userId, cards.get(position).getImageRef());
                                     dialog.dismiss();
                                 }

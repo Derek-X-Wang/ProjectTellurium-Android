@@ -7,9 +7,6 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:2.1.2'
 
-        // logging
-        classpath 'com.jakewharton.hugo:hugo-plugin:1.2.1'
-
         // DI
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
 

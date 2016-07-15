@@ -3,15 +3,17 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="30dp"
+    android:padding="30dp"
     tools:context=".controllers.SettingFragment">
 
     <Button
-        android:id="@+id/setting_signin"
+        android:id="@+id/setting_delete_cardbox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Sign in"
-        android:textColor="@color/headerGray"/>
+        android:text="Delete My CardBox"
+        android:textColor="@color/white"
+        android:background="@drawable/button_selector"
+        android:textStyle="bold"/>
 
     <View
         android:layout_width="match_parent"
@@ -22,6 +24,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Sign out"
-        android:textColor="@color/headerGray"/>
+        android:textColor="@color/white"
+        android:background="@drawable/button_selector"
+        android:textStyle="bold"/>
+
+
+
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"/>
+
+    <Button
+        android:id="@+id/setting_signin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sign in"
+        android:textColor="@color/headerGray"
+        android:visibility="gone"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"/>
+
+
 
 </LinearLayout>

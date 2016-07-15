@@ -18,6 +18,7 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:paddingTop="230dp"
+            android:paddingBottom="?actionBarSize"
             android:clipToPadding="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
