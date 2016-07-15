@@ -18,7 +18,6 @@ import android.widget.ListView;
 
 import com.amazonaws.mobile.AWSMobileClient;
 import com.amazonaws.mobile.user.IdentityManager;
-import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.intbridge.projecttellurium.airbridge.controllers.BoxActivity;
 import com.intbridge.projecttellurium.airbridge.controllers.CardFragment;
 import com.intbridge.projecttellurium.airbridge.controllers.ContactFragment;
@@ -48,7 +47,7 @@ public class MainActivity extends AutoLayoutActivity {
     private DiscoveryFragment discoveryFragment;
     private SettingFragment settingFragment;
 
-    private int currentTab = R.id.tab_cards;
+    private int currentTab = R.id.tab_contacts;
     @BindView(R.id.tab_contacts)
     protected IconWithTextView tabContacts;
     @BindView(R.id.tab_cards)
@@ -161,7 +160,7 @@ public class MainActivity extends AutoLayoutActivity {
 
         resetOtherTabs();
         getFragmentManager().beginTransaction()
-                .add(R.id.fragment_content, getFragment(R.id.tab_cards))
+                .add(R.id.fragment_content, getFragment(currentTab))
                 .commit();
         setIconTextAlpha(currentTab);
     }

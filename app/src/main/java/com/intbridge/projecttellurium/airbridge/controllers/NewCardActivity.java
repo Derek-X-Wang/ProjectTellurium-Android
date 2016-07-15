@@ -41,7 +41,6 @@ import com.intbridge.projecttellurium.airbridge.auth.CognitoHelper;
 import com.intbridge.projecttellurium.airbridge.models.Card;
 import com.intbridge.projecttellurium.airbridge.utils.RemoteDataHelper;
 import com.rengwuxian.materialedittext.MaterialEditText;
-import com.squareup.haha.perflib.Main;
 import com.squareup.picasso.Picasso;
 import com.zhy.autolayout.AutoLayoutActivity;
 
@@ -116,6 +115,7 @@ public class NewCardActivity extends AutoLayoutActivity {
                 viewMode();
             } else {
                 editMode();
+                getSupportActionBar().setTitle("Edit Card");
             }
         }
 
@@ -263,18 +263,24 @@ public class NewCardActivity extends AutoLayoutActivity {
                 // Save image to cache
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inSampleSize = IMAGE_DOWN_SAMPLE_SIZE;
-                Bitmap bitmap = BitmapFactory.decodeFile(getPath(selectedImageUri), options);
-                File imageCache = new File(Environment.getExternalStorageDirectory().toString() + "/" + key);
-                storeImage(bitmap,imageCache);
-                //Bitmap ThumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(imagePath), THUMBSIZE, THUMBSIZE);
-                // Save to S3
-                AmazonS3 s3 = new AmazonS3Client(getCredentialsProvider());
-                TransferUtility transferUtility = new TransferUtility(s3, getApplicationContext());
-                TransferObserver observer = transferUtility.upload(
-                        AWSConfiguration.AMAZON_S3_USER_FILES_BUCKET,     /* The bucket to upload to */
-                        key,    /* The key for the uploaded object */
-                        imageCache        /* The file where the data to upload exists */
-                );
+                Bitmap bitmap;
+                try {
+                    bitmap=BitmapFactory.decodeStream(getContentResolver().openInputStream(selectedImageUri),null, options);
+                    //Bitmap bitmap = BitmapFactory.decodeFile(getPath(selectedImageUri), options);
+                    File imageCache = new File(Environment.getExternalStorageDirectory().toString() + "/" + key);
+                    storeImage(bitmap,imageCache);
+                    //Bitmap ThumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(imagePath), THUMBSIZE, THUMBSIZE);
+                    // Save to S3
+                    AmazonS3 s3 = new AmazonS3Client(getCredentialsProvider());
+                    TransferUtility transferUtility = new TransferUtility(s3, getApplicationContext());
+                    TransferObserver observer = transferUtility.upload(
+                            AWSConfiguration.AMAZON_S3_USER_FILES_BUCKET,     /* The bucket to upload to */
+                            key,    /* The key for the uploaded object */
+                            imageCache        /* The file where the data to upload exists */
+                    );
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
                 Log.e(TAG, "doInBackground: save image to S3" );
             }
 

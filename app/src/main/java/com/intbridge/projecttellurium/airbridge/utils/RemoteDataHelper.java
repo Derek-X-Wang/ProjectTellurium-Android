@@ -491,6 +491,17 @@ public class RemoteDataHelper {
         new PlaceCardTask().execute(boxId, cardId);
     }
 
+    public void deleteMyCardBox(String userId) {
+        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
+        DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+        CardBox box = mapper.load(CardBox.class, userId, "default");
+        mapper.delete(box);
+    }
+
+    public void deleteMyCardBoxInBackground(String userId) {
+        new DeleteMyCardBoxTask().execute(userId);
+    }
+
     public void deleteContactInBackground(String userId, String selectedContactKey) {
         new DeleteContactTask().execute(userId,selectedContactKey);
     }
@@ -621,14 +632,28 @@ public class RemoteDataHelper {
             if(myCards.size() == 0) {
                 return null;
             }
-            Discover presence = new Discover();
-            presence.setUserId(userId[0]);
-            presence.setCardname(cardName);
+
             Log.e(TAG, "doInBackground: RemovePresenceTask: "+cardName);
             AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 
-            mapper.delete(presence);
+            Discover person = new Discover();
+            person.setUserId(userId[0]);
+
+            DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
+                    .withHashKeyValues(person)
+                    .withConsistentRead(false);
+
+            PaginatedQueryList<Discover> result = mapper.query(Discover.class, queryExpression);
+
+            if(result == null) return null;
+            for (Discover d : result) {
+                Discover presence = new Discover();
+                presence.setUserId(d.getUserId());
+                presence.setCardname(d.getCardname());
+                mapper.delete(presence);
+            }
+
             return null;
         }
 
@@ -660,6 +685,19 @@ public class RemoteDataHelper {
 
         protected void onPostExecute(Void result) {
             Log.e(TAG, "onPostExecute: delete card" );
+
+        }
+    }
+
+    private class DeleteMyCardBoxTask extends AsyncTask<String, Void, Void> {
+
+        protected Void doInBackground(String... s) {
+            deleteMyCardBox(s[0]);
+            return null;
+        }
+
+        protected void onPostExecute(Void result) {
+            Log.e(TAG, "onPostExecute: delete cardbox" );
 
         }
     }
