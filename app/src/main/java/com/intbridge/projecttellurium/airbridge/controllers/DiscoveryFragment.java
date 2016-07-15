@@ -51,11 +51,11 @@ public class DiscoveryFragment extends Fragment {
 
     private RemoteDataHelper helper;
 
-    Subscription cardListSubscription;
-    Observer<List<Discover>> observer;
-    Observable<List<Discover>> cardListObservable;
+    private Subscription cardListSubscription;
+    private Observer<List<Discover>> observer;
+    private Observable<List<Discover>> cardListObservable;
 
-    DialogPlus dialog;
+    private DialogPlus dialog;
 
     private final static String TAG = "DiscoveryFragment";
 
@@ -67,7 +67,6 @@ public class DiscoveryFragment extends Fragment {
         host = (MainActivity)getActivity();
         host.setActionBarTitle("Discover");
         helper = new RemoteDataHelper(host);
-//        helper.setDiscoverPresence(host.getUserId());
         adapter = new NearbyAdapter(host);
 
         cardListObservable = Observable.fromCallable(new Callable<List<Discover>>() {
@@ -134,6 +133,14 @@ public class DiscoveryFragment extends Fragment {
                 ImageView imageView = (ImageView)header.findViewById(R.id.profile_image_sendcard);
                 helper.setImage(imageView, person.getImageRef());
                 sendToWho.setText(String.format("%s %s", person.getFirstName(), person.getLastName()));
+//                View footer = host.getInflater().inflate(R.layout.layout_sendcard_footer, null);
+//                TextView cancelTextView = (TextView) footer.findViewById(R.id.dialog_footer_cancel);
+//                cancelTextView.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        dialog.dismiss();
+//                    }
+//                });
                 SendCardAdapter sendCardadapter = new SendCardAdapter(host,cards);
                 dialog = DialogPlus.newDialog(host)
                         .setAdapter(sendCardadapter)
@@ -143,8 +150,12 @@ public class DiscoveryFragment extends Fragment {
                             @Override
                             public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
                                 Logger.e("onItemClick is","sending card");
-                                helper.addToContactInBackground(person.getUserId(),cards.get(position).getImageRef());
-                                dialog.dismiss();
+                                if (position >= 0 && position < cards.size()) {
+                                    Logger.e("onItemClick is","vaild selection");
+                                    helper.addToContactInBackground(person.getUserId(),cards.get(position).getImageRef());
+                                    dialog.dismiss();
+                                }
+
                             }
                         })
                         .setExpanded(true)  // This will enable the expand feature, (similar to android L share dialog)

@@ -19,6 +19,7 @@ import android.widget.ListView;
 import com.amazonaws.mobile.AWSMobileClient;
 import com.amazonaws.mobile.user.IdentityManager;
 import com.flipboard.bottomsheet.BottomSheetLayout;
+import com.intbridge.projecttellurium.airbridge.controllers.BoxActivity;
 import com.intbridge.projecttellurium.airbridge.controllers.CardFragment;
 import com.intbridge.projecttellurium.airbridge.controllers.ContactFragment;
 import com.intbridge.projecttellurium.airbridge.controllers.DiscoveryFragment;
@@ -40,6 +41,7 @@ import butterknife.OnClick;
 
 
 public class MainActivity extends AutoLayoutActivity {
+
 
     private ContactFragment contactFragment;
     private CardFragment cardFragment;
@@ -76,6 +78,7 @@ public class MainActivity extends AutoLayoutActivity {
     public static final int CODE_CREATE_NEW_CARD = 12;
     public static final int CODE_EDIT_EXIST_CARD = 13;
     public static final int CODE_DISPLAY_CARD_DETAIL = 14;
+    public static final int CODE_CARD_BOX_LIST = 15;
 
     private static final String TAG = "MainActivity";
 
@@ -131,7 +134,9 @@ public class MainActivity extends AutoLayoutActivity {
         int id = item.getItemId();
 
         if(id == R.id.action_inbox) {
-
+            Intent i = new Intent(MainActivity.this, BoxActivity.class);
+            i.putExtra(USER_ID, userId);
+            startActivityForResult(i,CODE_CARD_BOX_LIST);
         } else if(id == R.id.action_addnew) {
             Intent i = new Intent(MainActivity.this, NewCardActivity.class);
             startActivityForResult(i,CODE_CREATE_NEW_CARD);

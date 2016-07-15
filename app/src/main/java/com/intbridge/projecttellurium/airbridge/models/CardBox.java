@@ -11,10 +11,12 @@ import java.util.List;
  *
  * Created by Derek on 7/14/2016.
  */
-@DynamoDBTable(tableName = "CardBoxs")
+@DynamoDBTable(tableName = "CardBoxes")
 public class CardBox {
     private String userId;
     private String boxName;
+    private String firstName;
+    private String lastName;
     private List<String> contacts;
 
     @DynamoDBHashKey(attributeName = "UserId")
@@ -42,5 +44,23 @@ public class CardBox {
 
     public void setContacts(List<String> contacts) {
         this.contacts = contacts;
+    }
+
+    @DynamoDBAttribute(attributeName = "FirstName")
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    @DynamoDBAttribute(attributeName = "LastName")
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 }

@@ -62,6 +62,10 @@
         <activity
             android:name=".controllers.NewCardActivity"
             android:screenOrientation="portrait"/>
+        <activity
+            android:name=".controllers.BoxActivity"
+            android:screenOrientation="portrait"/>
+
         <meta-data
             android:name="design_width"
             android:value="1080"/>

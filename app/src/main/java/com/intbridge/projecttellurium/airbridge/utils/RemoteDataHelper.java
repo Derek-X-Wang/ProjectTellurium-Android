@@ -29,6 +29,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.intbridge.projecttellurium.airbridge.R;
 import com.intbridge.projecttellurium.airbridge.models.Card;
+import com.intbridge.projecttellurium.airbridge.models.CardBox;
 import com.intbridge.projecttellurium.airbridge.models.Contact;
 import com.intbridge.projecttellurium.airbridge.models.Discover;
 import com.squareup.picasso.Picasso;
@@ -413,6 +414,83 @@ public class RemoteDataHelper {
         s3.deleteObject(AWSConfiguration.AMAZON_S3_USER_FILES_BUCKET, imageRef);
     }
 
+    public List<CardBox> getAllCardBoxes(String userId) {
+        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
+        DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression();
+        PaginatedScanList<CardBox> result = mapper.scan(CardBox.class, scanExpression);
+        // remove card of myself
+        List<CardBox> resultWithoutMe = new ArrayList<>();
+        for (CardBox d : result) {
+            if(!d.getUserId().equals(userId))
+                resultWithoutMe.add(d);
+        }
+        Log.e(TAG, "find Card Box: "+result.size());
+        return resultWithoutMe;
+    }
+
+    public void placeCardInBox(String boxId, String cardId) {
+        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
+        DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+        CardBox box = mapper.load(CardBox.class, boxId, "default");
+        if (box == null) {
+            // should never be this case
+            Log.e(TAG, "placeCardInBox: wtf");
+            box = new CardBox();
+            box.setUserId(boxId);
+        }
+        List<String> list = box.getContacts();
+        // should never be this case
+        if (list == null) list = new ArrayList<>();
+        String[] key = cardId.split("_");
+        boolean exist = false;
+        for (String sample : list) {
+            String[] set = sample.split("_");
+            // one card in box per user per box
+            if (set[0].equals(key[0])){
+                exist = true;
+            }
+        }
+        if (!exist) {
+            // update other's contact
+            for (String id : list) {
+                String[] other = id.split("_");
+                addToContact(other[0], cardId);
+                // update to your own
+                addToContact(key[0], id);
+            }
+
+            // add to box
+            list.add(cardId);
+            box.setContacts(list);
+            mapper.save(box);
+        }
+    }
+
+    public void createCardBox(String userId, String cardId) {
+        AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
+        DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
+        String[] key = cardId.split("_");
+        Card card = mapper.load(Card.class, key[0], key[1]);
+        CardBox box = new CardBox();
+        box.setUserId(userId);
+        box.setBoxName("default");
+        box.setFirstName(card.getFirstName());
+        box.setLastName(card.getLastName());
+        List<String> list = new ArrayList<>();
+        list.add(cardId);
+        box.setContacts(list);
+        mapper.save(box);
+    }
+
+    public void createCardBoxInBackground(String userId, String cardId) {
+        new CreateCardBoxTask().execute(userId,cardId);
+    }
+
+    public void placeCardInBoxInBackground(String boxId, String cardId) {
+        new PlaceCardTask().execute(boxId, cardId);
+    }
+
     public void deleteContactInBackground(String userId, String selectedContactKey) {
         new DeleteContactTask().execute(userId,selectedContactKey);
     }
@@ -462,7 +540,31 @@ public class RemoteDataHelper {
         }
 
         protected void onPostExecute(Void result) {
-            Log.e(TAG, "onPostExecute: ddddd" );
+            Log.e(TAG, "onPostExecute: AddToContactTask" );
+        }
+    }
+
+    private class PlaceCardTask extends AsyncTask<String, Void, Void> {
+
+        protected Void doInBackground(String... s) {
+            placeCardInBox(s[0],s[1]);
+            return null;
+        }
+
+        protected void onPostExecute(Void result) {
+            Log.e(TAG, "onPostExecute: PlaceCardTask" );
+        }
+    }
+
+    private class CreateCardBoxTask extends AsyncTask<String, Void, Void> {
+
+        protected Void doInBackground(String... s) {
+            createCardBox(s[0],s[1]);
+            return null;
+        }
+
+        protected void onPostExecute(Void result) {
+            Log.e(TAG, "onPostExecute: CreateCardBoxTask" );
         }
     }
 
@@ -522,7 +624,7 @@ public class RemoteDataHelper {
             Discover presence = new Discover();
             presence.setUserId(userId[0]);
             presence.setCardname(cardName);
-
+            Log.e(TAG, "doInBackground: RemovePresenceTask: "+cardName);
             AmazonDynamoDBClient ddbClient = new AmazonDynamoDBClient(getCredentialsProvider());
             DynamoDBMapper mapper = new DynamoDBMapper(ddbClient);
 

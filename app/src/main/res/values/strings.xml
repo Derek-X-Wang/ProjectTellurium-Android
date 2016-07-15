@@ -60,4 +60,6 @@
     <string name="prompt_phone">Phone</string>
     <string name="prompt_username_email">Username or Email</string>
     <string name="delete_button">Delete</string>
+    <string name="app_bar_new_box">New Box</string>
+    <string name="sendcard_box_text">Place your card in:</string>
 </resources>

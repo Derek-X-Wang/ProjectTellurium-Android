@@ -87,6 +87,7 @@ public class NewCardActivity extends AutoLayoutActivity {
     private Uri selectedImageUri;
     private File imageFile;
     private boolean modeView = false;
+    private RemoteDataHelper helper;
 
     private static final int IMAGE_DOWN_SAMPLE_SIZE = 5;
     private static final String TAG = "NewCardActivity";
@@ -103,6 +104,8 @@ public class NewCardActivity extends AutoLayoutActivity {
         myToolbar.setTitle("New Card");
         setSupportActionBar(myToolbar);
         ButterKnife.bind(this);
+
+        helper = new RemoteDataHelper(this);
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
@@ -275,6 +278,9 @@ public class NewCardActivity extends AutoLayoutActivity {
                 Log.e(TAG, "doInBackground: save image to S3" );
             }
 
+            // set presence if this is the first card
+            if (helper.findMyCards(newCard.getUserId()).size() == 1 )
+                helper.setDiscoverPresence(newCard.getUserId());
             return null;
         }
 
